@@ -27,7 +27,9 @@ Prior to arriving in the laboratory, I have been working on cell membrane. I hav
 
 
 
-
+%
+%  STATE OF THE ART
+%
 
 \section{State of the art in the megason lab}
 
@@ -43,7 +45,7 @@ Here is a small description of the images :
 \hline x (space) & 1024 & 0.24 um \\ 
 \hline y (space) & 1024 & 0.24 um \\ 
 \hline z (space) & 70 & 1 um \\ 
-\hline t (time) & 100 & 2 to 5 s \\ 
+\hline t (time) & 700 & 2 min\\ 
 \hline \multicolumn{3}{|c|}{ 2 intensity channels} \\ 
 \hline
 \end{tabular} 
@@ -51,21 +53,232 @@ Here is a small description of the images :
 \caption{Megason Lab typical fluorescent microscopy dataset}
 \label{tab:DataSizes}
 \end{figure}
-The table~\ref{tab:DataSizes}, shows that the datasets are huge ( the intensity values 
+The table~\ref{tab:DataSizes}, shows that the datasets are huge ( the intensity values are coded with {\verb+unsigned char+}, so that a full two channel dataset is approximatively  10.5 Gbit).
+
+Those datasets include nuclei and membrane information in two different intensity channels,and in the future, will include more channel with other biological markers. The imaging technique is point to point, and a mechanical displacement is involved for moving from on point to another (mirror displacement in the x-y plan, and stage displacement on the z axis). This leads to several artefacts and drawbacks :
+
+\subsubsection{interlacing artefact}
+This artefact is due to the microscope's raster scanning: it scans a line, following the x axis, and then increment on the y axis and scans another line.
+The uncertainty on the x axis leads to interlacing of successive lines as illustrated figure~\ref{fig:InterlacingArtefact}.
+This interlacing is also due to displacement uncertainties while scanning a line : as displacement varies, pixel width varies !
+Thus this interlacing artefact is not isotropic: a line may seem to be translated of a positive factor on the right of the image, and of a negative factor on the left !
+
+\TODO{figure illustrating interlacing problem theory}
+\begin{figure}[htb]
+  \centering
+  \subfloat[nuclei channel]{\label{fig:InterlaceNuclei}\includegraphics[width=0.7\textwidth]{pictures/InterlacingNuclei}}\\
+  \subfloat[membrane channel]{\label{fig:InterlaceMembrane}\includegraphics[width=0.7\textwidth]{pictures/InterlacingMembrane}}                
+  \caption{Interlacing artifact on 2 photon confocal images. Views are x-y cuts of a 3D volume}
+  \label{fig:InterlacingArtefact}
+\end{figure}
+
+
+
+\subsubsection{Anisotropy of images}
+
+
+The datasets acquired in the Megason lab are anisotropic. As in the medical imaging domain, specialists are used to analyse images "slice by slice"
+instead of considering them as a volume. They are worried about having a very detailed image in the x-y plan, and don't really worry about the other dimension.
+This way of seeing things is wrong for images processing. A completely anisotropic image is very hard to process.
+Non existing structures appear in the third dimension as illustrated figure~\ref{fig:Anysotropy}.
+If a human brain with its understanding of the data may be able to interpret these structures, they lead most common algorithms to failure.
+
+We can notice that nuclei seem to be stucked together and membrane's closure is almost always missing. This gives challenging a priori introduction problems.
+\TODO{insert anisotropy examples}
+
+
+\subsubsection{Noise}
+
+There is much noise present in the datasets. Both membrane channel and nuclei channel are populated with non Gaussian noise.
+The noise comes both from the microscope and electronics acquisition equipments, and from the biological sample that can be fluorescent in random locations.
+The acquisition noise along z axis is decorrelated.
+\TODO{get histograms of noise}
+
+It could be interesting to study the response of the system to one small luminous point. The problem comes from the fact that depending on the phosphor used, the noise's statistics will differ.
+\TODO{show noise in membrane and in nuclei}
+
+\subsubsection{Low resolution of images}
+
+The imaging process, combined with a too low resolution, leads to merged or missing structures. The nuclei channel displays very often clusters of merged nuclei when the membrane channel has information holes.
+\TODO{show merged nuclei and holes in membrane}
+
+\subsubsection{Point spread function}
+
+The impulse response of the microscope is a noisy point spread function. That adds a deconvolution problem that can be treated together with the denoising problem. For simplicity reasons, searchers image with a very low resolution along the z axis, as the impulse function is spread out a lot along this axis.
+\TODO{point spread function illustration}
+
+\subsubsection{Complex structures}
+
+The images we get are complex assembly of cells.
+Some area being full of membrane, and others full with inter cellular liquid.
+This is not a simple microscope slide with some well known cells, but a whole developing organism.
+
+
+\TODO{show some fucked up functions}
 
 
 
 
 
-Kishore Mosaliganti has been working for two years in the Megason lab, in order to develop new segmentation methods for fluorescent images.
-
-\subsection{membrane segmentation}
 
 
 
 
+\subsection{The megason lab imaging pipeline}
+
+Dr Kishore Mosaliganti has been working for two years in the Megason lab, in order to develop new segmentation methods for fluorescent images.
+He has been working on experiencing and developing diverse algorithms for nuclei and membrane detection and segmentation.
+As presented is the previous section, the datasets in the Megason Lab are extremely challenging:
+they are huge and present important drawbacks (resolution, noise) as they are provided for visual processing and not computer assisted processing.
+
+As these datasets are very big, and four dimensional, it is not possible to use Matlab for easy prototyping and experiencing : 
+most of the time, the very low resolution third dimension will considerably modify the results.
+There is also a time issue : the datasets must be treated in an acceptable amount of time,
+and that prevents us from using Matlab language that does not provide every optimized function that we need for 3D images visualization and processing.
+
+This forces us to program and prototype in {\C++}. The standard library used for image processing in the Megason Lab is ITK. Kishore's algorithm are all coded with this library.
+The data processing in ITK is represented by pipelines : a series of connected filters that perform image processing tasks.
 
 
+Kishore studied several pipelines for nuclei and membrane segmentation.
+For nuclei segmentation, an approach based on detection of nuclei, and region growing with the level set theory was used last year.
+This year, a new approach based on nuclei detection and watershed algorithms is being used.
+The algorithm used are standard and contour based for the detection of nuclei.
+This leads to many errors in detection, due to the poor image quality. Right now, these errors are compensated after the segmentation step.
+
+For membrane segmentation, Kishore is proposing a very good denoising technique based on anisotropic diffusion and tensor voting.
+The reconstruction of the membrane structure is effective, even in low quality images. A segmentation step has to de implemented in top of it.
+
+\subsection{The problem I am addressing}
+
+I mainly focused on membrane segmentation prior to arriving in the Megason lab. This is a challenging problem, as shown by the data analysis : the membrane data is incomplete, noisy, three dimensional and anisotropic.
+
+Having no prior knowledge on Kishore's data denoising, I focused on level sets techniques to segment the membrane.
+The level set theory provides a very flexible framework for segmentation problems.
+This is a generalisation of the fast marching algorithm. They are easily extensible to any dimension.
+The drawbacks are that they are computationally intensive, and require theory learning prior to application.
+
+Similarly to region growing algorithms, level set algorithms can be initialized to provide prior information.
+I focused on growing a levelset function from cells center. For that purpose, we need a good cell localization.
+I have been studying levels sets in Creatis, for the purpose of cell segmentation and had some results in two dimensions.
+I was the considering that nuclei were already correctly detected and segmented, but when i arrived in the Megason Lab, I realized that before trying to segment the membrane using the techniques I studied in Creatis, I would need a correct cell nuclei detection.
+We decided with Kishore that there was improvements to be brought to the cell nuclei detection algorithms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\fergfzgrertge 
+
+
+
+
+
+
+ttttt
+
+In the beginning of the internship, a new technique for nuclei detection was released.
+As the one used in the Megason lab was not performing well enough, Kishore was willing to try and evaluate this new technique.
+
+
+
+%
+%  SEEDING
+%
+
+
+\section{Cell nuclei detection}
+
+Cell nuclei shapes varies from spherical to curved ellipsoidal. As introduced above, the microscopy images are challenging, they are very noisy and anisotropic.
+The main encountered difficulty is clustered nuclei that result from the point spread function of the microscope and the low resolution in the third dimension.
+
+The algorithms used in the Megason lab for nuclei and membrane segmentation are based on an initialisation inside the nuclei.
+Right now, a composite algorithm is used for detecting these nuclei. This algorithm is based on a combination of contour based algorithms :
+Hough transform, \TOTO{Be clear : WHAT IS ZE TECHNIQUE? reading code is not instructive}
+Those method provide us with landscapes (accumulation map for Hough transform, gradient vector flow tracking sinks, and finaly the intensity of smoothed nucleis) that we sum to combine the information fromo several sources. A local maxima detection is then performed on this resulting landscape.
+This method gives good enough results for starting a watershed algorithm. Segmented regions that obviously don't correspond to a cell nucleus are eliminated. The final result of the segmentation process is evaluated.
+\TODO{cite Kishore papers ?}
+
+
+This is clear that for nuclei detection based segmentation methods, the nuclei detection has to be improved.
+For that purpose we first implemented a new algorithm based on the Laplacian of Gaussian method.
+Then we created an evaluation framework, to compare the results given by this new algorithm, and Kishore's.
+We finally proposed a new method taking advantage of the cell membrane information.
+
+
+
+\subsection{Bibliography on cell nuclei detection}
+
+There are several papers dealing with cell nuclei detection, but very few are based on confocal images.
+Another difficulty when doing such bibliography is the plethora of journals and the fact that Harvard Medical School doesn't have subscription for many imaging journals.
+This restrains the scope of the bibliography.
+I found several articles providing evaluation for their cell detection algorithm :
+\begin{itemize}
+  \item Constantinos G. et al\cite{•}, in his article about automatic counting of cancer cell nuclei in tissue sections propose an evaluaiton method based on two observers.
+  They count the number of cells in ten images and the average number of cell counting error of the algorithm in percent the average number of cell present in the images is given (150). No information is provided on evaluating the cell nuclei position, or on the type of error : over detection or under detection ? The data are histological sections (2D).
+  \item Gang Li et al\cite{}, in his article about 3D cell nuclei segmentation based on gradient flow tracking, presents a method for detecting and segmenting cell nuclei in 3D confocal
+  datasets. The evaluation is done after the segmentation step and includes an elimination of detected nuclei that are too small. 
+  They present the number of over segmented and under segmented cell nuclei, on a set of four images.
+  \item P.S. Umesh Adiga et al\cite{}, in his article about segmentation of 3D histo-pathological images, present a method for segmenting cells in histological images 
+  (which somehow close to nuclei in fluorescent images).
+  The idea is to segment cells, using a watershed algorithm initialized on a simple cell center detection based on enhanced data (using morphological mathematics) and thresholding.
+  The watershed algorithm is then run on such data and provides over segmented results. Those over segmented results are improved using constrained region merging. 
+  The evaluation is done on 15 images and provides the original number of cells, and the number of detected cells for this algorithm.
+  Two other algorithms are run on the same data to provide a comparison.
+  \item Norberto Malpica et al\cite{•}, in his article about segmentation of clustered nuclei provides an evaluation based on two set of data : a training set (to adjust parameters of the algorithm), and a test set
+\end{itemize}
+
+
+Automatic detection of neurons in large cortical slices
+
+
+%A "Plan of the internship"
+%1 Goal (segment cells & membrane)
+%2 Data presentation
+%3 Where are we ? (membrane seg~0 cell seg needs lots of improvements)
+%priority seeding imposed
+%
+%B Cell nuclei detection
+% Intro
+%bad seeding as of now, new ago, need for evaluation
+%
+%2 Biblio
+%biblio on seeding evaluation
+%
+%3 Implementation
+%implemantation … hard very hard (go through other's code forgotten already...)
+%
+%4 proposing
+%new ago proposition new approach (based on membrane information)
+%
+%5 testing
+%result of evaluation
+%
+%6 difficulties and future
+%implementation big datasets 3D …
+%future : merge results ? first : bad results everywhere : no more info for merging seedings...
+%other ago based on wavelets? (as an opening)
+%
+%C Membrane segmentation
+%  intro
+%challenging need good cell detection...(but none present yet)
+%1 biblio
+%2 implementation (only 2D)
+%3 result (only 2D)
+%long very long but implementation can be greatly improved
+%4 future
+%not based on cell detection (start growing on the membrane)
 
 
 

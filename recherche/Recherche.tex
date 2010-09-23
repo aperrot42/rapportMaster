@@ -16,7 +16,7 @@ Thus, there is a re-programming and evaluation step, prior to any innovation.
 \subsection*{}
 
 While in the Megason Lab, I have been working on segmenting fluorescent microscopy images.
-Datas are four-dimensional (space and time), and represent regions (ear, brain...) of a developing zebra fish.
+Datas are four-dimensional (space and time), and represent regions (ear, brain...) of a developing zebrafish.
 It is possible to visualy distinc nuclei and membranes of cells. Those elements constitute the basis of the model that we try to create.
 Therefore, we have to be able to detect and track every cell across time. The model will also have to integrate morphological informations of each cell.
 
@@ -55,7 +55,7 @@ Here is a small description of the images :
 \end{figure}
 The table~\ref{tab:DataSizes}, shows that the datasets are huge ( the intensity values are coded with {\verb+unsigned char+}, so that a full two channel dataset is approximatively  10.5 Gbit).
 
-Those datasets include nuclei and membrane information in two different intensity channels,and in the future, will include more channel with other biological markers. The imaging technique is point to point, and a mechanical displacement is involved for moving from on point to another (mirror displacement in the x-y plan, and stage displacement on the z axis). This leads to several artefacts and drawbacks :
+Those datasets include nuclei and membrane information in two different intensity channels, and in the future, will include more channels with other biological markers. The imaging technique is point to point, and a mechanical displacement is involved for moving from on point to another (mirror displacement in the x-y plan, and stage displacement on the z axis). This leads to several artefacts and drawbacks :
 
 \subsubsection{interlacing artefact}
 This artefact is due to the microscope's raster scanning: it scans a line, following the x axis, and then increment on the y axis and scans another line.
@@ -68,7 +68,7 @@ Thus this interlacing artefact is not isotropic: a line may seem to be translate
   \centering
   \subfloat[nuclei channel]{\label{fig:InterlaceNuclei}\includegraphics[width=0.7\textwidth]{pictures/InterlacingNuclei}}\\
   \subfloat[membrane channel]{\label{fig:InterlaceMembrane}\includegraphics[width=0.7\textwidth]{pictures/InterlacingMembrane}}                
-  \caption{Interlacing artifact on 2 photon confocal images. Views are x-y cuts of a 3D volume}
+  \caption{Interlacing artefact on 2 photon confocal images. Views are x-y cuts of a 3D volume}
   \label{fig:InterlacingArtefact}
 \end{figure}
 
@@ -83,7 +83,7 @@ This way of seeing things is wrong for images processing. A completely anisotrop
 Non existing structures appear in the third dimension as illustrated figure~\ref{fig:Anysotropy}.
 If a human brain with its understanding of the data may be able to interpret these structures, they lead most common algorithms to failure.
 
-We can notice that nuclei seem to be stucked together and membrane's closure is almost always missing. This gives challenging a priori introduction problems.
+We can notice that nuclei seem to be stuck together and membrane's closure is almost always missing. This gives challenging a priori introduction problems.
 \TODO{insert anisotropy examples}
 
 
@@ -114,17 +114,12 @@ Some area being full of membrane, and others full with inter cellular liquid.
 This is not a simple microscope slide with some well known cells, but a whole developing organism.
 
 
-\TODO{show some fucked up functions}
+\TODO{show some fucked up volumes}
 
 
 
 
-
-
-
-
-
-\subsection{The megason lab imaging pipeline}
+\subsection{The Megason lab imaging pipeline}
 
 Dr Kishore Mosaliganti has been working for two years in the Megason lab, in order to develop new segmentation methods for fluorescent images.
 He has been working on experiencing and developing diverse algorithms for nuclei and membrane detection and segmentation.
@@ -147,49 +142,25 @@ The algorithm used are standard and contour based for the detection of nuclei.
 This leads to many errors in detection, due to the poor image quality. Right now, these errors are compensated after the segmentation step.
 
 For membrane segmentation, Kishore is proposing a very good denoising technique based on anisotropic diffusion and tensor voting.
-The reconstruction of the membrane structure is effective, even in low quality images. A segmentation step has to de implemented in top of it.
+The reconstruction of the membrane structure is effective, even in low quality images. A segmentation step has to be implemented on top of it.
 
 \subsection{The problem I am addressing}
 
 I mainly focused on membrane segmentation prior to arriving in the Megason lab. This is a challenging problem, as shown by the data analysis : the membrane data is incomplete, noisy, three dimensional and anisotropic.
 
 Having no prior knowledge on Kishore's data denoising, I focused on level sets techniques to segment the membrane.
-The level set theory provides a very flexible framework for segmentation problems.
-This is a generalisation of the fast marching algorithm. They are easily extensible to any dimension.
-The drawbacks are that they are computationally intensive, and require theory learning prior to application.
+The level set theory provides a very flexible framework for segmentation problems. They are easily extensible to any dimension.
+The drawbacks are that they are computationally intensive, and that the topology of the segmented region is by principle not controlled.
 
 Similarly to region growing algorithms, level set algorithms can be initialized to provide prior information.
 I focused on growing a levelset function from cells center. For that purpose, we need a good cell localization.
 I have been studying levels sets in Creatis, for the purpose of cell segmentation and had some results in two dimensions.
-I was the considering that nuclei were already correctly detected and segmented, but when i arrived in the Megason Lab, I realized that before trying to segment the membrane using the techniques I studied in Creatis, I would need a correct cell nuclei detection.
+I was then considering that nuclei were already correctly detected and segmented.
+But when i arrived in the Megason Lab, I realized that before trying to segment the membrane using the techniques I studied in Creatis, I would need a correct cell nuclei detection.
 We decided with Kishore that there was improvements to be brought to the cell nuclei detection algorithms.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\fergfzgrertge 
-
-
-
-
-
-
-ttttt
-
-In the beginning of the internship, a new technique for nuclei detection was released.
-As the one used in the Megason lab was not performing well enough, Kishore was willing to try and evaluate this new technique.
+That's why I started being interested in the problem of nuclei detection, in 3D confocal data.
+After experiencing with Kishore's techniques, I implemented a recent algorithm for comparison. I also proposed a new technique, with Dr Arnaud Gelas.
 
 
 
@@ -204,43 +175,476 @@ Cell nuclei shapes varies from spherical to curved ellipsoidal. As introduced ab
 The main encountered difficulty is clustered nuclei that result from the point spread function of the microscope and the low resolution in the third dimension.
 
 The algorithms used in the Megason lab for nuclei and membrane segmentation are based on an initialisation inside the nuclei.
-Right now, a composite algorithm is used for detecting these nuclei. This algorithm is based on a combination of contour based algorithms :
-Hough transform, \TOTO{Be clear : WHAT IS ZE TECHNIQUE? reading code is not instructive}
-Those method provide us with landscapes (accumulation map for Hough transform, gradient vector flow tracking sinks, and finaly the intensity of smoothed nucleis) that we sum to combine the information fromo several sources. A local maxima detection is then performed on this resulting landscape.
+Right now, a composite algorithm is used for detecting these nuclei based on a combination of contour based algorithms (see~\ref{sect:megasonExisting}).
 This method gives good enough results for starting a watershed algorithm. Segmented regions that obviously don't correspond to a cell nucleus are eliminated. The final result of the segmentation process is evaluated.
-\TODO{cite Kishore papers ?}
+\TODO{cite Kishore papers}
 
 
-This is clear that for nuclei detection based segmentation methods, the nuclei detection has to be improved.
-For that purpose we first implemented a new algorithm based on the Laplacian of Gaussian method.
-Then we created an evaluation framework, to compare the results given by this new algorithm, and Kishore's.
+This is clear that  the nuclei detection has to be improved.
+I started by carying a bibliographic research, to determine the state of the art in the nuclei segmentation/detection domain.
+Then, I implemented a new algorithm based on the Laplacian of Gaussian method.
+After that, I created an evaluation framework, to compare the results given by this new algorithm, and Kishore's.
 We finally proposed a new method taking advantage of the cell membrane information.
 
 
 
-\subsection{Bibliography on cell nuclei detection}
+\subsection{Existing methods}
 
-There are several papers dealing with cell nuclei detection, but very few are based on confocal images.
-Another difficulty when doing such bibliography is the plethora of journals and the fact that Harvard Medical School doesn't have subscription for many imaging journals.
-This restrains the scope of the bibliography.
-I found several articles providing evaluation for their cell detection algorithm :
-\begin{itemize}
-  \item Constantinos G. et al\cite{•}, in his article about automatic counting of cancer cell nuclei in tissue sections propose an evaluaiton method based on two observers.
-  They count the number of cells in ten images and the average number of cell counting error of the algorithm in percent the average number of cell present in the images is given (150). No information is provided on evaluating the cell nuclei position, or on the type of error : over detection or under detection ? The data are histological sections (2D).
-  \item Gang Li et al\cite{}, in his article about 3D cell nuclei segmentation based on gradient flow tracking, presents a method for detecting and segmenting cell nuclei in 3D confocal
-  datasets. The evaluation is done after the segmentation step and includes an elimination of detected nuclei that are too small. 
-  They present the number of over segmented and under segmented cell nuclei, on a set of four images.
-  \item P.S. Umesh Adiga et al\cite{}, in his article about segmentation of 3D histo-pathological images, present a method for segmenting cells in histological images 
-  (which somehow close to nuclei in fluorescent images).
-  The idea is to segment cells, using a watershed algorithm initialized on a simple cell center detection based on enhanced data (using morphological mathematics) and thresholding.
-  The watershed algorithm is then run on such data and provides over segmented results. Those over segmented results are improved using constrained region merging. 
-  The evaluation is done on 15 images and provides the original number of cells, and the number of detected cells for this algorithm.
-  Two other algorithms are run on the same data to provide a comparison.
-  \item Norberto Malpica et al\cite{•}, in his article about segmentation of clustered nuclei provides an evaluation based on two set of data : a training set (to adjust parameters of the algorithm), and a test set
-\end{itemize}
+There are several papers dealing with cell nuclei or cell detection 
+\cite{loukas2003image,umesh2001efficient,al2009improved},
+but only one is based on 3D confocal images~\cite{li20073}, similar to the ones acquired in the Megason lab.
+
+\subsubsection*{Confocal nuclei detection}
+G. Li {\etal}~\cite{li20073}, describe a segmentation method for nuclei in 3D confocal datasets. The method they use is based on gradient vector flow tracking.
+The image processing pipeline is presented figure~\ref{fig:gradientflowFlowchart}.
+\begin{description}
+  \item[Data] are 3D confocal datasets from zebrafish embryos. They are fluorescent nuclei.
+  \item[Method] is described figure~\ref{fig:gradientflowFlowchart}. 
+  A re-sampling and spline based interpolation is performed on the original data to get isotropic datasets.
+  The gradient vector diffusion field (see figure~\ref{fig:gradientflowFlowfield}) is then computed on a Gaussian blurred version of the isotropic data.
+  Following \cite{bajcsy1989multiresolution}, an elastic constraint is added to the diffusion equation to get a smooth vector field.
+  The tracking consists in selecting some points and moving them according to the vector field. The resulting trajectories end in "sinks" that correspond to center of nuclei.
+  A refinement step groups the close "sinks".
+  The segmentation is the done by cropping the image around each nuclei and applying a local adaptive threshold to find one nuclei per subregion.
+  A final step consists in eliminating the false positives (nuclei which are too small).
+  \item[Evaluation] is performed on 10 confocal datasets. The mean amount of nuclei in the datasets is 310. The number of over segmented and under segmented nuclei is presented. The automatic segmentation result is compared with the segmentation of two experts.
+  \item[Results] the algorithm provides good results in the paper: 
+  4.93\% of over-segmented nuclei,
+  and 5.03\% of under-segmented nuclei.
+  \item[Comments]:
+  The article misses the part describing the region cropping for getting the regions where the adaptive
+   threshold should be computed.
+   Looking at the illustration, it seems like these regions are either determined
+   according to attraction basins of each sink, or with a constrained Voronoï diagram.
+\end{description}
+\begin{figure}[h]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.75\textheight]{pictures/gradientflowFlowchart}
+\end{center}
+\caption{Flowchart of the algorithm proposed in~\cite{li20073}}
+\label{fig:gradientflowFlowchart}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \captionsetup[subfloat]{labelformat=empty}
+%  \subfloat[Illustration of 3D cell nuclei segmentation on a 2D slice. 
+%(a) A slice from 3D cell nuclei image. (b)Boundaries of small regions overlaid on the slice. The boundaries are obtained by an unknown method. 
+%(c) Edges of cell nuclei overlaid on the slice after the step of adaptive thresholding
+% (d) Randomly color-coded extracted cells.]{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegment}\label{fig:gradientflowSegment}}
+  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmenta}\label{fig:gradientflowSegmenta}}}\\
+  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmentb}\label{fig:gradientflowSegmentb}}}  
+  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmentc}\label{fig:gradientflowSegmentc}}}  
+  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmend}\label{fig:gradientflowSegmentd}}}  
+  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmene}\label{fig:gradientflowSegmente}}}  
+\caption{%
+\ref{fig:gradientflowSegmenta} : A slice of the 3D image.
+\ref{fig:gradientflowSegmentb} : The original gradient vector field.
+\ref{fig:gradientflowSegmentc} : The diffused gradient flow field with elastic deformation transformation. Obviously, the diffused vector field with elastic deformation transformation smoothly flows toward the central areas of cell nuclei. 
+\ref{fig:gradientflowSegmentd} : Zoomed view of~\ref{fig:gradientflowSegmentb}.
+\ref{fig:gradientflowSegmentd} : Zoomed view of~\ref{fig:gradientflowSegmentc}.
+Illustrations from \cite{li20073}}
+  \label{fig:gradientflowIllustration}
+\end{figure}
+\clearpage
+
+\subsubsection*{3D histological pathological cell detection}
+ P.S. Umesh Adiga {\etal}~\cite{umesh2001efficient}, present a method for segmenting cells in histological images 
+  (which are somehow close to nuclei in fluorescent images).
+  \begin{description}
+  \item[Data] are 3D confocal histo-pathological images of cells in thick tissues.
+  \item[Method] is described figure~\ref{fig:watershedFlowchart}.
+  A first step consists in thresholding the image to keep only the nuclei. The threshold level is given by an empirical law based on the histogram of the images.
+  Then, a succession of mathematical morphology operations consisting in opening and closing with a structuring element of same size, are used to improve the data. 
+  This filters the texture of the cells, and removes holes.
+  An intensity correction is then applied along the z axis. The figure~\ref{fig:watershedPrefilt} illustrates the results of this pre-processing.
+  After a binarization of the preprocessed image, a distance map is computed and thresholded to find the cell markers, to initiate the watershed algorithm.
+  Once the watershed algorithm has converged, a region merging process groups over-segmented cells. The region merge used in this paper is described by figure~\ref{watershedMerge}.
+  \item[Evaluation] is performed on 15 3D datasets. The mean amount of nuclei in the datasets is 22. The information provided by the evaluation is the number of detected cells compared to the number of real cells present. No information is given on the type of error. The algorithm is compared to \cite{malpica1997applying}, and shows better performance according to the evaluation criterion.
+  \item[Results] the algorithm provides very good results in the paper with 2\% of error instead of 9\% for \cite{malpica1997applying}.
+  \item[Comments]: this article is well presented with a description of all the steps of the processing pipeline.
+  The evaluation is done on small datasets (256*256*24) with few cells. A good information would have been amount of under segmented cells. 
+\end{description}
+\begin{figure}[h]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.75\textheight]{pictures/watershedFlowchart}
+\end{center}
+\caption{Flowchart of the algorithm proposed in~\cite{umesh2001efficient}}
+\label{fig:watershedFlowchart}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \captionsetup[subfloat]{labelformat=empty}
+  \subfloat[Diagrammatic representation of detecting the small fragments of the object and finding its parent.]{\includegraphics[width=0.49\textwidth]{pictures/watershedMerge}\label{fig:watershedMerge}}
+\subfloat[Result of image enhancement steps shown over a single image slice: (a) original image slice, (b) result of window slicing, (c) result of size-filtering, (d) result of morphological opening and closing of a 3D image.]{\includegraphics[width=0.49\textwidth]{pictures/watershedPrefilt}\label{fig:watershedPrefilt}}
+\caption{illustrations from \cite{umesh2001efficient}}
+  \label{fig:watershedIllustration}
+\end{figure}
+\clearpage
 
 
-Automatic detection of neurons in large cortical slices
+\subsubsection*{Histological cell nuclei detection}
+\label{sect:farsight}
+Yousef Al-Kofahi {\etal}~\cite{al2009improved}, presents a new method for nuclei detection.
+  \begin{description}
+  \item[Data] are 2D histological images (see figure~\ref{fig:farsightInitial}).
+  \item[Method] is described figure~\ref{fig:farsightFlowchart}.
+  A first step consists in finding the foreground of the image with a graph cut based binarization (illustrated figure~\ref{farsightBinary}).
+  A distance map is then computed on this binary image, and is used to constrain the scales of a multiscale Laplacian of Gaussian (see~\ref{sect:MLOG}).
+  The original image is processed by the scale-constrained multi-scale Laplacien of Gaussian.
+  A local maxima detection is performed on the resulting scalar field (as shown figure~\ref{fig:farsightMLOG}).
+  Those local maximas correspond to the position of the cell.
+  A watershed algorithm is then initiated from these points, and finally refined by manual editing and "alpha-refinement".
+  \item[Evaluation] is done on 25 images containing an average of 298 cells per image. The results present the number of over and under segmented cell nuclei and separates encroachment errors.
+  \item[Results] the algorithm provides acceptable results : 13.7\% of error.
+  \item[Comments]: this article is well presented with a description of all the steps of the processing pipeline.
+  The evaluation is done on enough images, and the results are detailed.
+  The algorithm was implemented in the Farsight toolkit (FTK, \url{http://www.farsight-toolkit.org/}), but we were unable to make it run on 3D data.
+\end{description}
+\begin{figure}[h]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.75\textheight]{pictures/farsightFlowchart}
+\end{center}
+\caption{Flowchart of the algorithm proposed in~\cite{al2009improved}}
+\label{fig:farsightFlowchart}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \captionsetup[subfloat]{labelformat=empty}
+\subfloat[(A) Nuclear channel from spectral unmixing.]{\includegraphics[width=0.49\textwidth]{pictures/farsightInitial}\label{fig:farsightInitial}}
+\subfloat[(B) Foreground extraction results. Pixels marked yellow represent a large connected component.]{\includegraphics[width=0.49\textwidth]{pictures/farsightBinary}\label{farsightBinary}} \\
+\subfloat[(C) Surface plot of the multiscale LoG filtering results for a small region. (D) Initial segmentation based on the LoG. (E) Surface plot of the distance-map-constrained multiscale LoG. (F) Improved initial segmentation resulting from the distance-constrained LoG.]{\includegraphics[width=0.75\textwidth]{pictures/farsightMLOG}\label{fig:farsightMLOG}}
+\caption{illustrations from \cite{al2009improved}}
+  \label{fig:farsightIllustration}
+\end{figure}
+\clearpage
+
+
+%
+%%\subsubsection*{Loukas two observers}
+%%
+%% C.G. Loukas {\etal}~\cite{loukas2003image}, published an article about automatic counting of cancer cell nuclei in tissue sections.
+%%As their data is very different from ours, the main interest of this article is the evaluation method based on based on two observers.
+%%  They count the number of cells in ten images and the average number of cell counting error of the algorithm in percent the average number of cell present in the images is given (150). No information is provided on evaluating the cell nuclei position, or on the type of error : over detection or under detection ? The data are histological sections (2D).
+%
+%\begin{description}
+%  \item[Data] are histological sections from cell cancers.
+%  \item[Method] is based on a modified Laplacian of Gaussian filtering with maxima detector. The data being extremely different from ours, the method is not further described in this report.
+%
+%  \item[Evaluation] is performed on 10 confocal datasets. The mean amount of nuclei in the datasets is 310. The number of over segmented and under segmented nuclei is presented. The automatic segmentation result is compared with the segmentation of two experts.
+%  \item[Results] the algorithm provides good results in the paper: 
+%  4.93\% of over-segmented nuclei,
+%  and 5.03\% of under-segmented nuclei.
+%  \item[Comments]: this article is well presented and evaluated,
+%  equations and references are given for algorithm reproduction.
+%  A windows executable of the algorithm is also provided. The code source is not released though. 
+%  The article misses the part desrcibing the region cropping for getting the regions where the adaptive
+%   threshold should be computed. 
+%   Looking at the illustration, it seems like these regions are either determined 
+%   according to attraction basins of each sink, or with a constrained Voronoï diagram.
+%\end{description}
+%
+%
+%
+
+\subsubsection{Existing method in the Megason Lab}
+\label{sect:megasonExisting}
+The existing method in the Megason Lab, for nuclei detection and segmentation, is also based on a detection of nuclei, and then, a segmentation, using watershed.
+  \begin{description}
+  \item[Data] are the challenging 3D confocal/2-photons images presented in the Data analysis part. 
+  \item[Method] is described figure~\ref{fig:kishoreFlowchart},
+  A pre processing stage consists in denoising the raw image, with an anisotropic diffusion filter.
+  Then, the algorithm consists in a combination of methods : 
+  hough transform, image masking and distance map, and the redial voting technique described in \cite{chang2007segmentation}, applied to the denoised image.
+  Once the three filter processed the nuclei image, their output scalar fields are summed.
+  A local maxima extraction is performed on this resulting field.
+  This extraction filters the close local maximas, to reduce the noise impact, by selecting the highest local maxima, and ignoring the other local maximas in a certain radius.
+  those maximas are then used for initializing a watershed algorithm.
+  \item[Evaluation] has been visually carried out by Kishore, for the initialization points of the watershed.
+  For the result of the watershed, the evaluation was performed on an expert-segmented dataset of 180 cell nuclei.
+  \item[Results] are still to be evaluated.
+  \item[Comments]: there is an existing method in the Megason lab, but it has not yet been evaluated nor published. Improving this method consists in, first going through the algorithms' code, then create a visualization and evaluation framework, and finally compare it with other methods.
+\end{description}
+\begin{figure}[h]
+\begin{center}
+\leavevmode
+\includegraphics[height=0.75\textheight]{pictures/kishoreFlowchart}
+\end{center}
+\caption{Flowchart of the algorithm used in the Megason Lab}
+\label{fig:kishoreFlowchart}
+\end{figure}
+\clearpage
+
+
+\subsubsection*{Conclusion}
+
+We can conclude that there are some existing algorithms for detecting and segmenting cell nuclei,
+but very few were designed for 3D confocal data.
+Most of the time, they perform well on 2D datasets, but are tricked by the low resolution of the third dimension.
+The evaluation is most of times based on the final segmentation, and interesting informations are number of over/under-segmented cell nuclei.
+
+
+
+\subsection{Proposal}
+\label{sect:proposal}
+There is still a lot of work to be done in order to improve the quality of nuclei detection. We propose here a new method based on the cell membrane information. We will first discuss the principle of this method, and then evaluate it on synthetic and real data.
+
+\subsubsection{Principle}
+
+All the papers we have been reading take advantage of the nuclei channel information, but none of them takes advantage of the membrane channel.
+This channel provides capital information, especially in the case of stuck nuclei, where most common detection method fail.
+Indeed, the membrane can separate the different nuclei.
+
+\paragraph*{}
+
+\begin{figure}[h]
+\begin{center}
+\leavevmode
+\includegraphics[width=0.5\textwidth]{pictures/voronoiExample2D}
+\end{center}
+\caption{Voronoï diagram (blue) centred in each cell nuclei (green), with the membrane (red)}
+\label{fig:voronoiExample2D}
+\end{figure}
+Several article make use of Voronoï diagrams to delimiter the zone where one nuclei is present.
+But the membrane is also around each nuclei. So the membrane channel provides us with information about nuclei positions.
+We can see figure~\ref{fig:voronoiExample2D}, that the membrane can be approximated by a Voronoï diagram centred in each nucleus.
+From this, we can use the membrane channel and consider it as a Voronoï tessellation, and from this, find the Delauney triangulation.
+The triangulation's intersections would be the centres of the cells. And nuclei are most of times located next to the center of the cell.
+
+\paragraph*{}
+
+The Voronoï cells are constituted by all the points closer to the center of the cell than any other center. Thus, if we draw a distance map from the Voronoï cells, the local maximas of this distance map are the centres.
+We want to take advantage of this principle by drawing a distance map on the membrane channel. For the localizing the local maximas, there is no need for a complete membrane information, as illustrated figure~\ref{fig:incompleteMembraneSynthetic}.
+\begin{figure}[h]
+  \centering
+\subfloat[Synthetic voronoï cell]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellFull}\label{fig:membraneCellFull}}
+\subfloat[Degraded synthetic voronoï cell]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellIncomplete}\label{fig:membraneCellIncomplete}}\\
+\subfloat[Distance map computed from the synthetic voronoï cell (figure~\ref{fig:membraneCellFull}). We clearly see a local maxima in the center of the cell.]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellFullDistance}\label{fig:membraneCellFullDistance}}
+\subfloat[Distance map computed from the degraded synthetic voronoï cell (figure~\ref{fig:membraneCellIncomplete}). The local maxima is still in the center of the cell.]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellIncompleteDistance}\label{fig:membraneCellIncompleteDistance}}
+\caption{Center of Voronoï cell stay unchanged under important degradation of the cell borders.}
+  \label{fig:incompleteMembraneSynthetic}
+\end{figure}
+
+\paragraph*{}
+We have seen that we can work on degraded membrane data to find an approximate position of cell nuclei.
+We will now describe the innovative membrane reconstruction step that Kishore Mosaliganti developed and that we use in this algorithm.
+
+
+This reconstruction is based on a diffusion filter pre-processing. The diffusion filter locates planar structures in the 3D data, and diffuses intensities along these plans.
+We get a good first approximation of the membrane with this method, but many holes are still present.
+In order to fill some of them, and reconnect the membrane, Kishore M.~{\etal} use a technique known as tensor voting.
+This reconnect disconnected points, by finding privileged local directions.
+
+The reconstruction of the membrane is illustrated figure~\TODO{reconstruction illustrations}.
+
+This is the membrane information that we will use for finding the cell centres.
+
+
+
+
+
+\subsubsection{Algorithm pipeline}
+
+It is clear that for most image processing problems, a series of transformation is needed in order to be able to work with the data.
+Inspired by the described articles, I designed an image processing pipeline adapted to our data.
+I describe here the image processing pipeline for the new algorithm, and the improvements of the existing nuclei segmentation pipeline
+\begin{description}
+  \item[Denoising: ] We first process the membrane and the nuclei channel with a median filter. The median filter's structuring element is a disk of radius
+  \TODO{radius of the median finally?}.
+  We don't process directly the very low third dimension, as we may lose some relevant data,
+  thus, the filter's structuring elements is two dimensional and applied to each "slice" (xy plan).
+%
+%
+  \item[Images Resampling: ] As in \cite{li20073}, our images are anisotropic : they are very high resolution in xy, and very low resolution in z, as shown by the
+  table~\ref{tab:DataSizes}, and the figure~\TODO{reference to the anisotropy figure in data analysis}.
+  We don't need this much information in xy, as algorithms are computationally expensive, and we want to keep a reasonable processing time.
+  But, we need a higher resolution in z.
+  For that purpose, we resample our images, using a BSpline interpolation of order 5.
+  This technique provides us with an isotropic dataset of spacing 0.4um, that can easily be
+  processed by the other filters. The interpolation, in the z direction, partially reconstructs the membrane.
+%
+%
+  \item[Nuclei binary mask: ] We threshold the nuclei image to keep a rough binary mask in which the nuclei are present.
+  The thresholds are chosen after an analysis of the histogram of the nuclei images.
+%  
+  \TODO{image of the binary mask}
+%
+%  
+  \item[Distance map creation: ] We then process the resampled and denoised membrane channel with Kishore's membrane reconstruction filter.
+  The resultant membrane is thresholded to get a binary image from which we compute a distance map
+  using the algorithm proposed by Maurer Jr {\etal}~\cite{maurer2003linear}.
+  The threshold values are empirically determined.
+%  
+  \TODO{display distance map}
+%
+%
+  \item[Local maxima extraction: ] Then, we dilate the distance map, This method is useful for local maxima extraction:
+  it merges local maximas to keep the highest one, in a region defined by the structuring element's radius.
+  After dilating the distance map according to , we locate local maximas with the flooding algorithm described in\cite{beare2005finding}.
+%  
+  \TODO{display dilated distance map}
+%
+%
+\end{description}
+
+
+\subsection{Evaluation}
+
+It is important to note that often times, Biologists just want to count and localize objects in an image, without segmenting them.
+That's why, in order to only evaluate the nuclei detection step, excluding the watershed segmentation, I created an evaluation framework providing necessary informations such as:
+ out of nuclei detection (false positive), over detection of a nuclei (false positive), non detection of a nuclei (false negative) and correct detection of a nuclei.
+
+I also created some tools for comparison of 3D datasets (based on {\gofigure}), and for simultaneous visualisation of point cloud and ray casted 3D dataset.
+
+We will evaluate three algorithms in this section:
+the algorithm that was used when I arrived in the Megason Lab (see section~\ref{sect:megasonExisting}),
+the variant of the Laplacian of Gaussian presented in \cite{al2009improved} (see section~\ref{sect:farsight}),
+and our proposed algorithm (see section~\ref{sect:proposal}).
+
+
+\subsubsection{evaluation on synthetic data}
+
+The generated synthetic data simulate the point-spread function of the microscope, on blobs, representing nuclei, and on Voronoï tessellations, representing membranes.
+The data has a low resolution in z.
+It is possible to have a variable noise level, and we will use these data to experience the robustness of the evaluated algorithms.
+
+\begin{figure}[htb]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline Noise level & Nuclei count & Correctly detected & Over-detected & Not-detected \\ 
+%\hline x (space) & 1024 & 0.24 um & \\ 
+%\hline y (space) & 1024 & 0.24 um \\ 
+\hline
+\end{tabular} 
+\end{center}
+\caption{Evaluation of 3 algorithms on different synthetic datasets.}
+\label{tab:DataSizes}
+\end{figure}
+
+\subsubsection{evaluation a segmented dataset}
+
+We currently have one segmented dataset in the Megason Lab. The dataset is a part of an ear imaged 2 year ago. It is populated with a lot of noise. The region of interrest of the dataset (which has been manually segmented), contains \TODO{hox many cells in synthetic dataset ?} nuclei.
+We ran the algorithms on the whole dataset, and masked the detection results with the region of interest.
+
+\begin{figure}[htb]
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline Nuclei count & Correctly detected & Over-detected & Not-detected \\ 
+%\hline x (space) & 1024 & 0.24 um & \\ 
+%\hline y (space) & 1024 & 0.24 um \\ 
+\hline
+\end{tabular} 
+\end{center}
+\caption{Evaluation of 3 algorithms on a manually segmented dataset.}
+\label{tab:DataSizes}
+\end{figure}
+
+\subsubsection{results}
+
+\TODO{}
+We found that THIS algorithm is more accurate, that THIS one is more robust, that THIS one is faster, that OURS is ...
+
+\subsection{conclusion \& future}
+
+
+We can improve the proposed algorithm, by automating the choice of the thresholds based on histograms.
+We could also use non linear resampling methods, for improving the resolution among z.
+
+We also implemented a Kdtree for grouping the local maximas, instead of using a dilation of the distance map,
+such implementation would require a time evaluation, as the distribution of local maximas in space affects the effectiveness of the Kdtree requests.
+
+We could combine the use of algorithms : the membrane based one in regions where nuclei are clumped, and the contour based ones (Kishore's or the improved Multiscale Laplacian of Gaussian) in region where nuclei are isolated.
+The detection of such regions can be done by analysing the size of the connected components of the binarized nuclei image:
+clumped nuclei correspond to large connected components.
+
+\section*{Conclusion}
+
+
+%A Context of the internship
+%1- Biological Context / Goals
+%2- Image Processing Challenges
+%3- Data presentation
+%4- The problem: you are going to address " ??? "
+%
+%B- Cell nuclei detection
+%Intro
+%1- State of the art
+%2- What's wrong with existing method
+%3- Your proposal
+%4- Results
+%    1- Synthetic data
+%    2- Real data
+%    3- Comparison of your method vs the other one. Validation? What is the benefit?
+%5- Partial conclusion.
+%    1- What is new?
+%    2- Did you improve existing methods? in which way?
+%        if not, why?
+%    3- Future work.
+%
+%C- Membrane segmentation
+%Intro
+%1- State of the art
+%2- What's wrong with existing method, if any?
+%3- Your proposal (using a watershed starting from seeds)
+%4- Results
+%    1- Synthetic data
+%    2- Real data
+%    3- Comparison of your method vs the other one. Validation? What is the benefit?
+%5- Partial conclusion.
+%    1- What is new?
+%    2- Did you improve existing methods? in which way?
+%        if not, why?
+%    3- Future work. 
+
+
+
+
+
+%
+%
+%\subsection{Laplacian of Gaussian implementation}
+%\label{sect:MLOG}
+%\subsubsection{Strategy}
+%
+%\TODO{mettre dans les commentaires de farsight, improvements}
+%
+%The idea was to reimplement only the part of the algorithm of \cite{al2009improved} concerning the cell nuclei detection.
+%The goal being to improve our initialization of the watershed algorithm. I was able to work with Raghav K. Padmanabhan, from the Roysam lab (who develops FTK),
+%during the NA-MIC\footnote{The National Alliance for Medical Image Computing (NA-MIC) is a multi-institutional, interdisciplinary team of computer scientists,
+%software engineers, and medical investigators who develop computational tools for the analysis and visualization of medical image data.} summer project week, in MIT.
+%We tried to apply the FTK nuclei detection technique to 3D datasets, and to extract the Scale-constrained Laplacian of Gaussian implementation from the source code.
+%
+%A visual comparison of the binarization proceed by Kishore's algorithm and by the Farsight ToolKit led to the conclusion that Kishore's binarization
+%was proceeding longer, but providing smoother results, which are important for the distance map step. That's the reason why, for the comparison of both algorithm,
+%I reimplemented the Scale Constrained Laplacian of Gaussian and integrated it to Kishore's processing pipeline.
+%
+%
+%\subsubsection{Implementation}
+%After reading and understanding the article, I checked out the code from the Farsight Toolkit. The code has been developed two years ago and is not maintained any more.
+%There was few documentation and comments, and the use of global variables made it hard to understand.
+%I decided to start from scratch and reimplement the algorithm.
+%
+%The datasets are huge in the Megason Lab, and in order to process them, Kishore develops all his algorithms in \C++ with the Insight ToolKit (ITK) library.
+%It was necessary that I develop the multi-scale Laplacian of Gaussian and create the whole evaluation framework with this language.
+%
+%
+%\subsubsection{Testing}
+%
+%Prior to evaluating the algorithm, it was necessary to test it on some well known data.
+%Indeed, The ITK implementation of the Multiscale Laplacian of Gaussian has a documentation and implementation problem:
+% the code and the documentation are contradictory about the normalisation across scales.
+%I tested the algorithm on a known function to verify its functioning.
+%
+%The test image was a 2D Gaussian of unit energy (integration across space equals one),
+% and of different standard deviation. If the normalisation across scales is working,
+%  the result of the Laplacian of Gaussian should be the same if computed across enough scales.
+%\TODO{find the test for multiscale log on gaussian.}
+%We proved the filter to be effectively working and detecting blobs of different scales without a loss in intensity as scale increases.
+%\TODO{provide test for several scales}
+%
+
 
 
 %A "Plan of the internship"

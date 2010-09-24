@@ -21,13 +21,15 @@
 %figures :
 \usepackage{graphicx}
 \usepackage{float}
+% wrapped
+\usepackage{wrapfig}
 %\floatstyle{boxed} 
 \restylefloat{figure}
-\usepackage[format=plain,indention=0cm,parskip=5pt,bf]{caption}
-%import section
-\usepackage{wrapfig}
-\usepackage{subfig}
+
+%\usepackage[format=plain,indention=0cm,parskip=5pt,bf]{caption}
+%subfigures 
  
+
 
 %arays
 \usepackage{array}
@@ -36,9 +38,16 @@
 \def \gofigure{Gofigure\raisebox{-0.2ex}{2}}
 
 %TODO macro
-\newcommand{\TODO}[1] {\marginpar{\colorbox{red}{\Huge \textbf{TODO}} } \colorbox{red}{\Huge \textbf{TODO}}\colorbox{green}{\normalsize #1  } } 
+\newcommand{\TODO}[1] {\marginpar{\colorbox{red}{\Huge \textbf{TODO}}} \colorbox{red}{\Huge \textbf{TODO}}\colorbox{green}{\normalsize #1  } } 
 
+\newcommand{\etal} {\textit{et al.}}
+
+\usepackage{subfig}
+\captionsetup[subfigure]{style=default, margin=5pt, parskip=0pt, hangindent=0pt, indention=0pt, singlelinecheck=true}
 % Hypertext links
 \usepackage[colorlinks=true,breaklinks=false,dvips,ps2pdf]{hyperref}
 \urlstyle{sf}
+
+%Maths
+\usepackage{amsmath}
 

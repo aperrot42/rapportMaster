@@ -3,15 +3,42 @@
 
 \chapter{Research report} 
 
-\section*{Introduction}
 
-\subsection*{}
-I am presenting in this chapter, the research project I have been working on during the PFE. I'have first undergone a bibliographic step, to acquire knowledge about the matter. Thatnks to this research, I could determine which problems are still to be solved. Then i tried to find appropriate solutions to the problems encountered.
+\section{Problematic}
 
-The main difficulty in research, is that very often, there is no solution yet to the problem, in the domain. Therefore, I'have had to do a bibliography, in order to determine the state of the art, and eventually learn some new theories.
 
-The image processing domain is particular: many algorithms are invented and published, but very few are available nor applicable to diverse images.
-Thus, there is a re-programming and evaluation step, prior to any innovation.
+I mainly focused on membrane segmentation prior to arriving in the Megason lab. This is a challenging problem, as shown by the data analysis : the membrane data is incomplete, noisy, three dimensional and anisotropic.
+
+Having no prior knowledge on Kishore's data denoising, I focused on level sets techniques to segment the membrane.
+The level set theory provides a very flexible framework for segmentation problems. They are easily extensible to any dimension.
+The drawbacks are that they are computationally intensive, and that the topology of the segmented region is by principle not controlled.
+
+Similarly to region growing algorithms, level set algorithms can be initialized to provide prior information.
+I focused on growing a levelset function from cells center. For that purpose, we need a good cell localization.
+I have been studying levels sets in Creatis, for the purpose of cell segmentation and had some results in two dimensions.
+I was then considering that nuclei were already correctly detected and segmented.
+But when i arrived in the Megason Lab, I realized that before trying to segment the membrane using the techniques I studied in Creatis, I would need a correct cell nuclei detection.
+We decided with Kishore that there was improvements to be brought to the cell nuclei detection algorithms.
+
+That's why I started being interested in the problem of nuclei detection, in 3D confocal data.
+After experiencing with Kishore's techniques, I implemented a recent algorithm for comparison, and proposed a new technique, with Dr Arnaud Gelas.
+
+
+\chapter{My Proposals}
+\chapter{Results}
+
+%
+%\section*{Introduction}
+%
+%\subsection*{}
+%
+%\TODO{elle pue cette intro}
+%I am presenting in this chapter, the research project I have been working on during the PFE. I have first undergone a bibliographic step, to acquire knowledge about the matter. Thanks to this research, I could determine which problems are still to be solved. Then I tried to find appropriate solutions to the problems encountered.
+%
+%The main difficulty in research, is that very often, there is no solution yet to the problem, in the domain. Therefore, I have had to do a bibliography, in order to determine the state of the art, and eventually learn some new theories.
+%
+%The image processing domain is particular: many algorithms are invented and published, but very few are available nor applicable to diverse images.
+%Thus, there is a re-programming and evaluation step, prior to any innovation.
 
 \subsection*{}
 
@@ -33,92 +60,6 @@ Prior to arriving in the laboratory, I have been working on cell membrane. I hav
 
 \section{State of the art in the megason lab}
 
-
-\subsection{Data analysis}
-
-We are working on fluorescent microscopy images acquired with a 2-photons confocal microscope. The acquisition process produces huge datasets that we must process efficiently.
-Here is a small description of the images :
-\begin{figure}[htb]
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline Dimension & Size & Resolution \\ 
-\hline x (space) & 1024 & 0.24 um \\ 
-\hline y (space) & 1024 & 0.24 um \\ 
-\hline z (space) & 70 & 1 um \\ 
-\hline t (time) & 700 & 2 min\\ 
-\hline \multicolumn{3}{|c|}{ 2 intensity channels} \\ 
-\hline
-\end{tabular} 
-\end{center}
-\caption{Megason Lab typical fluorescent microscopy dataset}
-\label{tab:DataSizes}
-\end{figure}
-The table~\ref{tab:DataSizes}, shows that the datasets are huge ( the intensity values are coded with {\verb+unsigned char+}, so that a full two channel dataset is approximatively  10.5 Gbit).
-
-Those datasets include nuclei and membrane information in two different intensity channels, and in the future, will include more channels with other biological markers. The imaging technique is point to point, and a mechanical displacement is involved for moving from on point to another (mirror displacement in the x-y plan, and stage displacement on the z axis). This leads to several artefacts and drawbacks :
-
-\subsubsection{interlacing artefact}
-This artefact is due to the microscope's raster scanning: it scans a line, following the x axis, and then increment on the y axis and scans another line.
-The uncertainty on the x axis leads to interlacing of successive lines as illustrated figure~\ref{fig:InterlacingArtefact}.
-This interlacing is also due to displacement uncertainties while scanning a line : as displacement varies, pixel width varies !
-Thus this interlacing artefact is not isotropic: a line may seem to be translated of a positive factor on the right of the image, and of a negative factor on the left !
-
-\TODO{figure illustrating interlacing problem theory}
-\begin{figure}[htb]
-  \centering
-  \subfloat[nuclei channel]{\label{fig:InterlaceNuclei}\includegraphics[width=0.7\textwidth]{pictures/InterlacingNuclei}}\\
-  \subfloat[membrane channel]{\label{fig:InterlaceMembrane}\includegraphics[width=0.7\textwidth]{pictures/InterlacingMembrane}}                
-  \caption{Interlacing artefact on 2 photon confocal images. Views are x-y cuts of a 3D volume}
-  \label{fig:InterlacingArtefact}
-\end{figure}
-
-
-
-\subsubsection{Anisotropy of images}
-
-
-The datasets acquired in the Megason lab are anisotropic. As in the medical imaging domain, specialists are used to analyse images "slice by slice"
-instead of considering them as a volume. They are worried about having a very detailed image in the x-y plan, and don't really worry about the other dimension.
-This way of seeing things is wrong for images processing. A completely anisotropic image is very hard to process.
-Non existing structures appear in the third dimension as illustrated figure~\ref{fig:Anysotropy}.
-If a human brain with its understanding of the data may be able to interpret these structures, they lead most common algorithms to failure.
-
-We can notice that nuclei seem to be stuck together and membrane's closure is almost always missing. This gives challenging a priori introduction problems.
-\TODO{insert anisotropy examples}
-
-
-\subsubsection{Noise}
-
-There is much noise present in the datasets. Both membrane channel and nuclei channel are populated with non Gaussian noise.
-The noise comes both from the microscope and electronics acquisition equipments, and from the biological sample that can be fluorescent in random locations.
-The acquisition noise along z axis is decorrelated.
-\TODO{get histograms of noise}
-
-It could be interesting to study the response of the system to one small luminous point. The problem comes from the fact that depending on the phosphor used, the noise's statistics will differ.
-\TODO{show noise in membrane and in nuclei}
-
-\subsubsection{Low resolution of images}
-
-The imaging process, combined with a too low resolution, leads to merged or missing structures. The nuclei channel displays very often clusters of merged nuclei when the membrane channel has information holes.
-\TODO{show merged nuclei and holes in membrane}
-
-\subsubsection{Point spread function}
-
-The impulse response of the microscope is a noisy point spread function. That adds a deconvolution problem that can be treated together with the denoising problem. For simplicity reasons, searchers image with a very low resolution along the z axis, as the impulse function is spread out a lot along this axis.
-\TODO{point spread function illustration}
-
-\subsubsection{Complex structures}
-
-The images we get are complex assembly of cells.
-Some area being full of membrane, and others full with inter cellular liquid.
-This is not a simple microscope slide with some well known cells, but a whole developing organism.
-
-
-\TODO{show some fucked up volumes}
-
-
-
-
 \subsection{The Megason lab imaging pipeline}
 
 Dr Kishore Mosaliganti has been working for two years in the Megason lab, in order to develop new segmentation methods for fluorescent images.
@@ -130,10 +71,9 @@ As these datasets are very big, and four dimensional, it is not possible to use 
 most of the time, the very low resolution third dimension will considerably modify the results.
 There is also a time issue : the datasets must be treated in an acceptable amount of time,
 and that prevents us from using Matlab language that does not provide every optimized function that we need for 3D images visualization and processing.
-
 This forces us to program and prototype in {\C++}. The standard library used for image processing in the Megason Lab is ITK. Kishore's algorithm are all coded with this library.
 The data processing in ITK is represented by pipelines : a series of connected filters that perform image processing tasks.
-
+The Megason lab aslo develops a visualization program for microscopy data: {\gofigure}. This program uses ITK and VTK for processing and visualization of data. The long term goal being to include the algorithms to {\gofigure}, we also have to use those libraries.
 
 Kishore studied several pipelines for nuclei and membrane segmentation.
 For nuclei segmentation, an approach based on detection of nuclei, and region growing with the level set theory was used last year.
@@ -143,25 +83,6 @@ This leads to many errors in detection, due to the poor image quality. Right now
 
 For membrane segmentation, Kishore is proposing a very good denoising technique based on anisotropic diffusion and tensor voting.
 The reconstruction of the membrane structure is effective, even in low quality images. A segmentation step has to be implemented on top of it.
-
-\subsection{The problem I am addressing}
-
-I mainly focused on membrane segmentation prior to arriving in the Megason lab. This is a challenging problem, as shown by the data analysis : the membrane data is incomplete, noisy, three dimensional and anisotropic.
-
-Having no prior knowledge on Kishore's data denoising, I focused on level sets techniques to segment the membrane.
-The level set theory provides a very flexible framework for segmentation problems. They are easily extensible to any dimension.
-The drawbacks are that they are computationally intensive, and that the topology of the segmented region is by principle not controlled.
-
-Similarly to region growing algorithms, level set algorithms can be initialized to provide prior information.
-I focused on growing a levelset function from cells center. For that purpose, we need a good cell localization.
-I have been studying levels sets in Creatis, for the purpose of cell segmentation and had some results in two dimensions.
-I was then considering that nuclei were already correctly detected and segmented.
-But when i arrived in the Megason Lab, I realized that before trying to segment the membrane using the techniques I studied in Creatis, I would need a correct cell nuclei detection.
-We decided with Kishore that there was improvements to be brought to the cell nuclei detection algorithms.
-
-That's why I started being interested in the problem of nuclei detection, in 3D confocal data.
-After experiencing with Kishore's techniques, I implemented a recent algorithm for comparison. I also proposed a new technique, with Dr Arnaud Gelas.
-
 
 
 %
@@ -215,7 +136,7 @@ The image processing pipeline is presented figure~\ref{fig:gradientflowFlowchart
   The article misses the part describing the region cropping for getting the regions where the adaptive
    threshold should be computed.
    Looking at the illustration, it seems like these regions are either determined
-   according to attraction basins of each sink, or with a constrained Voronoï diagram.
+   according to attraction basins of each sink, or with a constrained Voronoi diagram.
 \end{description}
 \begin{figure}[h]
 \begin{center}
@@ -225,26 +146,37 @@ The image processing pipeline is presented figure~\ref{fig:gradientflowFlowchart
 \caption{Flowchart of the algorithm proposed in~\cite{li20073}}
 \label{fig:gradientflowFlowchart}
 \end{figure}
+
 \begin{figure}[h]
   \centering
   \captionsetup[subfloat]{labelformat=empty}
-%  \subfloat[Illustration of 3D cell nuclei segmentation on a 2D slice. 
-%(a) A slice from 3D cell nuclei image. (b)Boundaries of small regions overlaid on the slice. The boundaries are obtained by an unknown method. 
-%(c) Edges of cell nuclei overlaid on the slice after the step of adaptive thresholding
-% (d) Randomly color-coded extracted cells.]{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegment}\label{fig:gradientflowSegment}}
-  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmenta}\label{fig:gradientflowSegmenta}}}\\
-  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmentb}\label{fig:gradientflowSegmentb}}}  
-  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmentc}\label{fig:gradientflowSegmentc}}}  
-  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmend}\label{fig:gradientflowSegmentd}}}  
-  \subfloat[][]{{\includegraphics[width=0.49\textwidth]{pictures/gradientflowSegmene}\label{fig:gradientflowSegmente}}}  
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowSegmenta}\label{fig:gradientflowSegmenta}}}
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowSegmentb}\label{fig:gradientflowSegmentb}}}\\
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowSegmentc}\label{fig:gradientflowSegmentc}}}
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowSegmentd}\label{fig:gradientflowSegmentd}}}
 \caption{%
-\ref{fig:gradientflowSegmenta} : A slice of the 3D image.
-\ref{fig:gradientflowSegmentb} : The original gradient vector field.
-\ref{fig:gradientflowSegmentc} : The diffused gradient flow field with elastic deformation transformation. Obviously, the diffused vector field with elastic deformation transformation smoothly flows toward the central areas of cell nuclei. 
-\ref{fig:gradientflowSegmentd} : Zoomed view of~\ref{fig:gradientflowSegmentb}.
-\ref{fig:gradientflowSegmentd} : Zoomed view of~\ref{fig:gradientflowSegmentc}.
-Illustrations from \cite{li20073}}
-  \label{fig:gradientflowIllustration}
+Illustration of 3D cell nuclei segmentation on a 2D slice, from~\cite{li20073}.
+\subref{fig:gradientflowSegmenta}: A slice from 3D cell nuclei image;
+\subref{fig:gradientflowSegmentb}: Boundaries of small regions overlaid on the slice;
+\subref{fig:gradientflowSegmentc}: Edges of cell nuclei overlaid on the slice after the step of adaptive thresholding;
+\subref{fig:gradientflowSegmentd}: Randomly color-coded extracted cells.}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \captionsetup[subfloat]{labelformat=empty}
+  \subfloat[][]{{\includegraphics[width=0.5\textwidth]{pictures/gradientflowFlowfielda}\label{fig:gradientflowFlowfielda}}}\\
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldb}\label{fig:gradientflowFlowfieldb}}}
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldc}\label{fig:gradientflowFlowfieldc}}}\\
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldd}\label{fig:gradientflowFlowfieldd}}}
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfielde}\label{fig:gradientflowFlowfielde}}}
+\caption{%
+The 3D view of gradient vector field and diffused gradient vector field with elastic deformation transformation of a slice cropped from a 3D cell nuclei image, from~\cite{li20073}.
+\subref{fig:gradientflowFlowfielda}: A slice of the 3D image;
+\subref{fig:gradientflowFlowfieldb}: The original gradient vector field;
+\subref{fig:gradientflowFlowfieldc}: The diffused gradient flow field with elastic deformation transformation;
+\subref{fig:gradientflowFlowfieldd}: Zoomed view of \subref{fig:gradientflowFlowfieldb};
+\subref{fig:gradientflowFlowfielde}: Zoomed view of \subref{fig:gradientflowFlowfieldc}.}
 \end{figure}
 \clearpage
 
@@ -343,7 +275,7 @@ Yousef Al-Kofahi {\etal}~\cite{al2009improved}, presents a new method for nuclei
 %  The article misses the part desrcibing the region cropping for getting the regions where the adaptive
 %   threshold should be computed. 
 %   Looking at the illustration, it seems like these regions are either determined 
-%   according to attraction basins of each sink, or with a constrained Voronoï diagram.
+%   according to attraction basins of each sink, or with a constrained Voronoi diagram.
 %\end{description}
 %
 %
@@ -358,7 +290,7 @@ The existing method in the Megason Lab, for nuclei detection and segmentation, i
   A pre processing stage consists in denoising the raw image, with an anisotropic diffusion filter.
   Then, the algorithm consists in a combination of methods : 
   hough transform, image masking and distance map, and the redial voting technique described in \cite{chang2007segmentation}, applied to the denoised image.
-  Once the three filter processed the nuclei image, their output scalar fields are summed.
+  Once the three filters processed the nuclei image, their output scalar fields are summed.
   A local maxima extraction is performed on this resulting field.
   This extraction filters the close local maximas, to reduce the noise impact, by selecting the highest local maxima, and ignoring the other local maximas in a certain radius.
   those maximas are then used for initializing a watershed algorithm.
@@ -386,12 +318,19 @@ Most of the time, they perform well on 2D datasets, but are tricked by the low r
 The evaluation is most of times based on the final segmentation, and interesting informations are number of over/under-segmented cell nuclei.
 
 
-
 \subsection{Proposal}
 \label{sect:proposal}
 There is still a lot of work to be done in order to improve the quality of nuclei detection. We propose here a new method based on the cell membrane information. We will first discuss the principle of this method, and then evaluate it on synthetic and real data.
 
 \subsubsection{Principle}
+
+\paragraph{preliminaries}
+
+A Voronoi diagram is defined as such :
+The Voronoi Cell of the site \( p \in P \) is given as follows
+
+
+\TODO{complete voronoi equation if necessary}
 
 All the papers we have been reading take advantage of the nuclei channel information, but none of them takes advantage of the membrane channel.
 This channel provides capital information, especially in the case of stuck nuclei, where most common detection method fail.
@@ -404,26 +343,28 @@ Indeed, the membrane can separate the different nuclei.
 \leavevmode
 \includegraphics[width=0.5\textwidth]{pictures/voronoiExample2D}
 \end{center}
-\caption{Voronoï diagram (blue) centred in each cell nuclei (green), with the membrane (red)}
+\caption{Voronoi diagram (blue) centred in each cell nuclei (green), with the membrane (red)}
 \label{fig:voronoiExample2D}
 \end{figure}
-Several article make use of Voronoï diagrams to delimiter the zone where one nuclei is present.
+Several article make use of Voronoi diagrams to delimiter the zone where one nuclei is present.
 But the membrane is also around each nuclei. So the membrane channel provides us with information about nuclei positions.
-We can see figure~\ref{fig:voronoiExample2D}, that the membrane can be approximated by a Voronoï diagram centred in each nucleus.
-From this, we can use the membrane channel and consider it as a Voronoï tessellation, and from this, find the Delauney triangulation.
+We can see figure~\ref{fig:voronoiExample2D}, that the membrane can be approximated by a Voronoi diagram centred in each nucleus.
+From this, we can use the membrane channel and consider it as a Voronoi tessellation, and from this, find the Delauney triangulation.
 The triangulation's intersections would be the centres of the cells. And nuclei are most of times located next to the center of the cell.
 
 \paragraph*{}
 
-The Voronoï cells are constituted by all the points closer to the center of the cell than any other center. Thus, if we draw a distance map from the Voronoï cells, the local maximas of this distance map are the centres.
+
+
+The Voronoi cells are constituted by all the points closer to the center of the cell than any other center. Thus, if we draw a distance map from the Voronoi cells, the local maximas of this distance map are the centres.
 We want to take advantage of this principle by drawing a distance map on the membrane channel. For the localizing the local maximas, there is no need for a complete membrane information, as illustrated figure~\ref{fig:incompleteMembraneSynthetic}.
 \begin{figure}[h]
   \centering
-\subfloat[Synthetic voronoï cell]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellFull}\label{fig:membraneCellFull}}
-\subfloat[Degraded synthetic voronoï cell]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellIncomplete}\label{fig:membraneCellIncomplete}}\\
-\subfloat[Distance map computed from the synthetic voronoï cell (figure~\ref{fig:membraneCellFull}). We clearly see a local maxima in the center of the cell.]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellFullDistance}\label{fig:membraneCellFullDistance}}
-\subfloat[Distance map computed from the degraded synthetic voronoï cell (figure~\ref{fig:membraneCellIncomplete}). The local maxima is still in the center of the cell.]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellIncompleteDistance}\label{fig:membraneCellIncompleteDistance}}
-\caption{Center of Voronoï cell stay unchanged under important degradation of the cell borders.}
+\subfloat[Synthetic Voronoi cell]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellFull}\label{fig:membraneCellFull}}
+\subfloat[Degraded synthetic Voronoi cell]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellIncomplete}\label{fig:membraneCellIncomplete}}\\
+\subfloat[Distance map computed from the synthetic Voronoi cell (figure~\ref{fig:membraneCellFull}). We clearly see a local maxima in the center of the cell.]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellFullDistance}\label{fig:membraneCellFullDistance}}
+\subfloat[Distance map computed from the degraded synthetic Voronoi cell (figure~\ref{fig:membraneCellIncomplete}). The local maxima is still in the center of the cell.]{\includegraphics[width=0.49\textwidth]{pictures/membraneCellIncompleteDistance}\label{fig:membraneCellIncompleteDistance}}
+\caption{Center of Voronoi cell stay unchanged under important degradation of the cell borders.}
   \label{fig:incompleteMembraneSynthetic}
 \end{figure}
 
@@ -483,6 +424,7 @@ I describe here the image processing pipeline for the new algorithm, and the imp
   \item[Local maxima extraction: ] Then, we dilate the distance map, This method is useful for local maxima extraction:
   it merges local maximas to keep the highest one, in a region defined by the structuring element's radius.
   After dilating the distance map according to , we locate local maximas with the flooding algorithm described in\cite{beare2005finding}.
+  We only select local maximas that can possibly be located in the center of a cell, thus eliminating low values and high values corresponding respectively to holes in the membrane channel, and structures of the fish without cell.
 %  
   \TODO{display dilated distance map}
 %
@@ -506,7 +448,7 @@ and our proposed algorithm (see section~\ref{sect:proposal}).
 
 \subsubsection{evaluation on synthetic data}
 
-The generated synthetic data simulate the point-spread function of the microscope, on blobs, representing nuclei, and on Voronoï tessellations, representing membranes.
+The generated synthetic data simulate the point-spread function of the microscope, on blobs, representing nuclei, and on Voronoi tessellations, representing membranes.
 The data has a low resolution in z.
 It is possible to have a variable noise level, and we will use these data to experience the robustness of the evaluated algorithms.
 
@@ -515,7 +457,6 @@ It is possible to have a variable noise level, and we will use these data to exp
 \begin{tabular}{|c|c|c|c|c|}
 \hline Noise level & Nuclei count & Correctly detected & Over-detected & Not-detected \\ 
 %\hline x (space) & 1024 & 0.24 um & \\ 
-%\hline y (space) & 1024 & 0.24 um \\ 
 \hline
 \end{tabular} 
 \end{center}

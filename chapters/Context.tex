@@ -12,11 +12,11 @@
 
 \section{Systems Biology}
 
-With the completion of the genome projects~\cite{}, the stage is now set for a
+With the completion of the genome projects~\cite{venter2001sequence}, the stage is now set for a
 more complete understanding of how animals are created. Biologists now have
 access to the complete sequence of DNA that encodes the blueprint of life for
 many animals including human, mouse, zebrafish, and fruit
-fly~\cite{[2][3][4][5]} \TODO{refe?}The challenge is now understanding how this
+fly~\cite{lander2001initial,waterston2002initial,jaillon2004genome}. The challenge is now understanding how this
 code functions. The problem however is that the only thing that biologists can
 currently reliably predict from the genomic code is which parts can be
 transcribed and translated into protein. Biologists cannot accurately predict
@@ -65,11 +65,20 @@ its anatomy.
 
 \section{Zebrafish: one sytem of high interest for Systems-Biology}
 
+\begin{figure}[htb]
+\begin{center}
+\leavevmode
+ \includegraphics[width=0.95\textwidth]{pictures/zebrafishDev}
+\end{center}
+\caption{Development stages of the zebrafish embryo, from~\cite{kimmel1995stages}.}
+\label{fig:zebradev}
+\end{figure}
+
 Zebrafish (Danio rerio) is a small, freshwater, tropical fish commonly available
-in pet stores (see figure~\ref{}). It has become a popular model system for the
+in pet stores (see figure~\ref{fig:ZebraPic}). It has become a popular model system for the
 study of genetics and development in the last 2 decades and there are now
 many labs worldwide that study it. There have been several
-large-scale mutagenesis screens caried out in zebrafish and its genome has been
+large-scale mutagenesis screens carried out in zebrafish and its genome has been
 largely sequenced. Zebrafish has the advantages of fruit fly in that it
 is amenable to forward genetic screens, but unlike fruit fly, zebrafish is a
 vertebrate so is much more relevant to humans. Another huge advantage
@@ -92,16 +101,25 @@ developing tissue, organ, or eventually
 whole embryo~\cite{megason2003digitizing}. This technique will provide
 significant outcomes in a complete understanding of the cellular basis of
 development through the construction of complete lineage trees\footnote{First
-results on early zebrafish embryo~\cite{SCIENCE-PAPER} show the immense impact
+results on early zebrafish embryo~\cite{olivier2010cell} show the immense impact
 on the scientific community of such a technique.}. There are several steps to in
 toto imaging.\\
 
 The embryos must first be labeled with “segmentation markers” which allow all
-the cells to be segmented. Additionally embryos can be labeled with additional
+the cells to be segmented. Additionally embryos can be labelled with additional
 markers to reveal RNA or protein expression. The next step is to acquire 3D+t
 image sets using confocal or 2-photon fluorescent microscopy. And the final step
 is processing the often very large image sets to segment out all the cell
 trajectories and to extract quantitative, cell-centric data.
+
+\begin{figure}[htb]
+\begin{center}
+\leavevmode
+ \includegraphics[width=0.95\textwidth]{pictures/embryoConfocalPic}
+\end{center}
+\caption{This represents the tailbud of the zebrafish embryo. The image has been taken using a 2-photon/confocal microscope.}
+\label{fig:zebraconfoc}
+\end{figure}
 
 \subsection{Embryo Labeling}
 
@@ -120,7 +138,7 @@ across time, and across cell-division. Biologists, at the Megason Lab, typically
 use a histone-FP of one color (e.g. histone-cerulean) and a membrane-localized
 FP of another color (e.g. membrane-mCherry). This combination would generate
 embryos in which every nuclei is green and all the cell membranes are red~(see
-figure~\ref{}).
+figure~\ref{fig:zebraconfoc}).
  \item Expression markers refer to whatever else is being marked such that it
 can be digitized with in toto imaging. For example, transgenic fish can be made
 that express a fluorescent protein wherever some gene is normally expressed
@@ -155,21 +173,6 @@ Confocal microscopy~(see figure~\ref{fig:ConfocalPrinciple}) uses a pinhole to
 eliminate out of focus light whereas 2-photon microscopy only excites
 fluorescence in the focal plane.
 
-Thus both techniques allow thin (1$\mu$m) optical sections of fluorescent
-samples to be captured. By imaging at a series of focal planes, stacks of
-optical sections can be captured to generate a volumetric image and this can be
-repeated over time to generate 3D+t images. The axial (z) resolution with these
-techniques is typically around 5-fold less than the planar (xy) resolution so
-the volumetric images are anisotropic. Confocal imaging provides 2-fold higer
-resolution than 2-photon imaging but has a depth penetration limit of  150 um.
-2-photon imaging can image all the way through a zebrafish embryo and has
-reduced phototoxicity to the embryo and photobleaching of the fluorescent
-labels.\\
-
-Both acquisition techniques have been assembled in the Megasaon Lab from a
-Zeiss 710 NLO (figure~\ref{fig:MicMegason}).
-
-
 \begin{figure}[htb]
 \begin{center}
 \leavevmode
@@ -190,6 +193,20 @@ Zeiss 710 NLO (figure~\ref{fig:MicMegason}).
 \label{fig:Confocal2photonsPrinciple}
 \end{figure}
 
+Thus both techniques allow thin (1$\mu$m) optical sections of fluorescent
+samples to be captured. By imaging at a series of focal planes, stacks of
+optical sections can be captured to generate a volumetric image and this can be
+repeated over time to generate 3D+t images. The axial (z) resolution with these
+techniques is typically around 5-fold less than the planar (xy) resolution so
+the volumetric images are anisotropic. Confocal imaging provides 2-fold higer
+resolution than 2-photon imaging but has a depth penetration limit of  150 um.
+2-photon imaging can image all the way through a zebrafish embryo and has
+reduced phototoxicity to the embryo and photobleaching of the fluorescent
+labels.\\
+
+Both acquisition techniques have been assembled in the Megasaon Lab from a
+Zeiss 710 NLO (figure~\ref{fig:MicMegason}).
+
 \begin{figure}[htb]
 \begin{center}
 \leavevmode
@@ -199,6 +216,8 @@ Zeiss 710 NLO (figure~\ref{fig:MicMegason}).
 Lab}
 \label{fig:MicMegason}
 \end{figure}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,15 +282,13 @@ processing specialists the opportunity to promote their methods.
 
 \section{Problematic}
 
-
 As discussed previously, membrane segmentation is an important step in the process of understanding the development of an embryo.
 Indeed, membrane provide useful informations on the local connectivity between cells, and on local characteristics of a given cell (like volume, shape information...).
-Segmenting cell membrane is a challenging problem (see section~\ref{}): data are incomplete, quite noisy, 3D and anisotropic.
+Segmenting cell membrane is a challenging problem (see section~\ref{setc:ChallengesData}): data are incomplete, quite noisy, 3D and anisotropic.
 
 Due to the physics of the image acquisition, data are never complete and thus any segmentation technique need serious prior to properly extract cell membrane.
 An assumption based on biological knowledge is that each nucleus belongs to one cell, and is inside the space enclosed by the cell membrane.
-Two important points should be pointed out from this assumption:
-\begin{itemize}
+Two important points should be pointed out from this assumption:\begin{itemize}
     \item cell membranes are closed
     \item cell nuclei center are inside
 \end{itemize}

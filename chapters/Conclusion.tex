@@ -1,0 +1,103 @@
+
+\chapter{Conclusion}
+%%5- Partial conclusion.
+%%    1- What is new?
+%%    2- Did you improve existing methods? in which way?
+%%        if not, why?
+%%    3- Future work.
+
+First, we will talk about our contribution, the future work that can be done, to finally open the report to my future works in research.
+
+%
+%While in the Megason Lab, I have been working on segmenting fluorescent microscopy images.
+%Datas are four-dimensional (space and time), and represent regions (ear, brain...) of a developing zebrafish.
+%
+%
+%The creation of this model is a thesis subject : cells lineage registration in microscopy, during which I would like to extend my work.
+%
+%Prior to arriving in the laboratory, I have been working on cell membrane. I have then concentrated my researches on cell nuclei detection and localization.
+
+
+
+
+\section{Our contribution}
+
+We proposed a new algorithm capable of performing well in noisy 2 photons/confocal 3D datasets.
+Most of current methods are based on gradient information on the nuclei channel, but this channel is often very noisy, and this information hard to retrieve.
+The proposed method makes use of the membrane channel as the main source of information,
+and provides is able to detect nuclei where gradient based\cite{al2009improved} algorithms fail. 
+This algorithm was compared to two other recent methods and proved to provide better results than the one currently used in the Megason lab.
+
+
+\section{Improvements of actual method}
+
+The proposed method outperforms the method currently used in the megason lab by 18 points
+(see tabular~\ref{tab:realEval}), according to our "success" measure, representing the amount of correctly placed detections.
+We also proved it to be more robust to noise in the synthetic datasets.
+We plan to use a fusion framework, later on, to fuse the results from this method, and from the scale constrained LoG. Using information of different algorithm depending on the region ( our mehtod outperforms the scale constrained LoG in case of stacked nuclei).
+
+
+\section{Future work}
+
+
+\subsection{Cell detection proposal}
+
+There are lots of track to improve the cell detection algorithm:
+\begin{itemize}
+  \item  We can fuse information from this algorithm, and the scale constrained LoG, in order to correctly separate nuclei in area where they are stacked.
+  \item We can automate the thresholding of the membrane distance map, to get the approximate Voronoi cells, with a clustering algorithm based on values of the local maximas of the distance map: there should be a cluster of local maximas under the threshold level corresponding to holes in the membrane, and a cluster of local maximas above the threshold corresponding to local maximas inside the Voronoi cell.
+  \item  We can also automate the choice of the thresholds for nuclei and membrane binary masks, based on histograms of denoised images.
+  \item  We can also use non linear resampling methods, for improving the resolution among z.
+  \item  We could combine the results of several algorithms  : use our proposal in regions where nuclei are clumped, 
+  and the contour based algorithms (Kishore's or the improved Multiscale Laplacian of Gaussian) in region where nuclei are isolated.
+  The detection of such regions can be done by analysing the size of the connected components of the binarized nuclei image:
+  clumped nuclei correspond to large connected components. For the purpose of nearest neighbour research, a Kdtree can be used.
+\end{itemize}
+
+
+\subsection{Cell membrane reconstruction and segmentation}
+
+Once we have a good enough seed detection, we can use this information, to reconstruct the membrane channel based.
+Indeed, we can use the center of the nuclei and consider the membrane as a Voronoi diagram which sites are the nuclei's centres.
+With the help from this information, membrane reconstruction can be carried out.
+
+We also have points within each cell; this crucial information will be very helpful for initializing level set approaches for segmenting both nuclei and cell membrane.
+Knowing what the topology of the membrane is is an information
+that a topology constrained local level set could use (\cite{han2003topology,lankton2008localizing}), and we are working on developing such algorithm.
+
+
+\section{Personal conclusion}
+
+I have had an amazing opportunity, during this thesis,
+to discover and participate to the American research.
+I was able to get in touch with worldwide recognized
+image processing scientists during the NA-MIC\footnote{
+The National Alliance for Medical Image Computing (NA-MIC) is a multi-institutional, interdisciplinary team of computer scientists, software engineers, and medical investigators who develop computational tools for the analysis and visualization of medical image data.}
+summer project week in MIT, and to work in a collaborative environment.
+
+The master thesis in the Megason lab taught me a lot, not only about the research environment, but also about hardcore programming techniques that provided me with a good understanding of extremely powerfull \C++ libraries. I am now able to efficiently program using ITK and VTK, and thus can work on huge dataset, and reuse the numerous image processing filters already implemented by medical image scientists.
+
+\section{Future}
+
+The current project is part of a long term project which is registration of cell lineages in Microscopy.
+Indeed, in order to be able to track cells in space and time, biologists image living specimen. Then, we have to automatically detect and segment the plethora of cells of the organism. That is what I have been working on during my master thesis.
+Once we will be able to correctly detect and segment the cells and the nuclei, we will have to find ways to track cells across time. And finally, once we got the cell lineages of the whole organism, we will have to find ways to compare different specimens. That is the challenging subject I will be working on the next three years, for my phd thesis, in collaboration with the Creatis laboratory and the Megason Laboratory.
+
+
+%\subsubsection{Implementation}
+%After reading and understanding the article, I checked out the code from the Farsight Toolkit. The code has been developed two years ago and is not maintained any more.
+%There was few documentation and comments, and the use of global variables made it hard to understand.
+%I decided to start from scratch and reimplement the algorithm.
+%
+
+%The idea was to reimplement only the part of the algorithm of \cite{al2009improved} concerning the cell nuclei detection.
+%The goal being to improve our initialization of the watershed algorithm. I was able to work with Raghav K. Padmanabhan, from the Roysam lab (who develops FTK),
+%during the NA-MIC\footnote{The National Alliance for Medical Image Computing (NA-MIC) is a multi-institutional, interdisciplinary team of computer scientists,
+%software engineers, and medical investigators who develop computational tools for the analysis and visualization of medical image data.} summer project week, in MIT.
+%We tried to apply the FTK nuclei detection technique to 3D datasets, and to extract the Scale-constrained Laplacian of Gaussian implementation from the source code.
+%
+%A visual comparison of the binarization proceed by Kishore's algorithm and by the Farsight ToolKit led to the conclusion that Kishore's binarization
+%was proceeding longer, but providing smoother results, which are important for the distance map step. That's the reason why, for the comparison of both algorithm,
+%I reimplemented the Scale Constrained Laplacian of Gaussian and integrated it to Kishore's processing pipeline.
+%
+%

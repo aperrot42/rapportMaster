@@ -6,7 +6,7 @@
 
 \chapter{State of the art}
 
-The 2-photon/confocal dataset that are prouced in the Megason lab, are challenging.
+The 2-photon/confocal dataset that are produced in the Megason lab, are challenging.
 They represent a lot of data, and have several artifacts that make image processing much harder.
 Even though such confocal datasets are fairly recent, a lot of work has already been done for finding methods to robustly and efficiently process them.
 This chapter presents the state of the art in the Megason lab,
@@ -21,10 +21,9 @@ namely, the data and techniques that already are available, as well as the techn
 \label{setc:ChallengesData}
 Biologists acquire tremendous amount of data (see table~\ref{tab:DataSizes})
 corresponding in three dimensional videos of zebra fishes embryos
-(see figure~\ref{fig:fig:embryoConfocalSlice}).
+(see figure~\ref{fig:zebraconfoc}).
 
 \subsection{Large amount of data}
-
 
 We are working on fluorescent microscopy images acquired with a 2-photons confocal microscope. The acquisition process produces huge datasets that we must process efficiently.
 Here is a small description of the images :
@@ -49,10 +48,6 @@ Those datasets include nuclei and membrane information in two different intensit
 
 
 \subsection{Complex data}
-
-The imaging technique is point to point, and a mechanical displacement is involved for moving from on point to another (mirror displacement in the x-y plan, and stage displacement on the z axis). This leads to several artefacts and drawbacks :
-
-\subsubsection{interlacing artefact}
 \begin{figure}[htb]
   \centering
   \subfloat[nuclei channel]{\label{fig:InterlaceNuclei}\includegraphics[width=0.7\textwidth]{pictures/InterlacingNuclei}}\\
@@ -60,17 +55,25 @@ The imaging technique is point to point, and a mechanical displacement is involv
   \caption{Interlacing artefact on 2 photon confocal images. Views are x-y cuts of a 3D volume}
   \label{fig:InterlacingArtefact}
 \end{figure}
+The imaging technique is point to point, and a mechanical displacement is involved for moving from on point to another (mirror displacement in the xy plan, and stage displacement on the z axis). This leads to several artefacts and drawbacks :
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Interlacing artefact}
 This artefact is due to the microscope's raster scanning: it scans a line, following the x axis, and then increment on the y axis and scans another line.
 The uncertainty on the x axis leads to interlacing of successive lines as illustrated figure~\ref{fig:InterlacingArtefact}.
 This interlacing is also due to displacement uncertainties while scanning a line : as displacement varies, pixel width varies !
 Thus this interlacing artefact is not isotropic: a line may seem to be translated of a positive factor on the right of the image, and of a negative factor on the left !
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsubsection{Anisotropy of images}
 \begin{figure}[htb]
   \centering
   \captionsetup[subfloat]{labelformat=empty}
-  \subfloat[][]{{\includegraphics[width=0.7\textwidth]{pictures/anisotropieNucleiXY}\label{fig:anisotropieNucleiXY}}}\\
+  \subfloat[][]{\includegraphics[width=0.7\textwidth]{pictures/anisotropieNucleiXY}\label{fig:anisotropieNucleiXY}}\\
   \subfloat[][]{{\includegraphics[width=0.7\textwidth]{pictures/anisotropieNucleiXZ}\label{fig:anisotropieNucleiXZ}}}
 \caption{%
 Illustration of the anisotropy of the datasets in the nuclei channel (view along xy~\subref{fig:anisotropieNucleiXY}, along xz~\subref{fig:anisotropieNucleiXZ}).}
@@ -95,11 +98,14 @@ We can notice that nuclei seem to be stuck together and membrane's closure is al
 Another challenging problem comes from inhomogeneous intensity as described in~\cite{umesh2001efficient}, along the z axis (see figure~\ref{fig:membraneHolesXZ}).
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsubsection{Noise}
 There is much noise present in the datasets (see figure~\ref{noiseNuc}). Both membrane channel and nuclei channel are populated with non Gaussian noise.
 The noise comes both from the microscope and electronics acquisition equipments, and from the biological sample that can be fluorescent in random locations.
 The acquisition noise along z axis is decorrelated.
-\TODO{get histograms of noise}
+
 The problem also comes from the fact that depending on the phosphor used, the noise's statistics will differ.
 \begin{figure}[htb]
 \centering
@@ -114,7 +120,15 @@ The problem also comes from the fact that depending on the phosphor used, the no
 \end{figure}
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsubsection{Low resolution of images}
+
+The imaging process, combined with a too low resolution, leads to merged or missing structures.
+The nuclei channel displays very often clusters of merged nuclei (see figure~\ref{fig:anisotropy})
+when the membrane channel has information holes (see figure~\ref{fig:holesMembrane}).
+
 \begin{figure}[htb]
   \centering
   \captionsetup[subfloat]{labelformat=empty}
@@ -125,17 +139,17 @@ The problem also comes from the fact that depending on the phosphor used, the no
 Illustration of missing information in the membrane channel. Holes and intensity inhomogeneities in a xy plan~\subref{fig:membraneHolesXY}, a xz plan~\subref{fig:membraneHolesXZ}.}
 \label{fig:holesMembrane}
 \end{figure}
-The imaging process, combined with a too low resolution, leads to merged or missing structures. The nuclei channel displays very often clusters of merged nuclei (see figure~\ref{fig:anisotropy}) when the membrane channel has information holes (see figure~\ref{fig:holesMembrane}.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection{Point spread function}
 \begin{figure}[htb]
 \begin{center}
 \leavevmode
-\includegraphics[width=0.5\textwidth]{pictures/pointSpreadFunction}
+\includegraphics[width=0.3\textwidth]{pictures/pointSpreadFunction}
 \end{center}
-\caption{Illustration of the Point Spread Function (PSF) principle : the object is convoluted with the PSF.}
+\caption{Illustration of the Point Spread Function (PSF) principle : the object is convoluted with the PSF. (source: \href{http://en.wikipedia.org/wiki/File:Convolution_Illustrated_eng.png}{Wikipedia})}
 \label{fig:pointSpreadPrinciple}
 \end{figure}
 The impulse response of the microscope is a noisy point spread function (see figure~\ref{fig:pointSpreadPrinciple}).
@@ -145,6 +159,9 @@ It is possible to correct such noise by knowing the impulse response of the micr
 Knowing exactly this PSF, would give us the chance to have a better z resolution, by oversampling in z, and deconvolving.
 For that purpose, we could image a sub-pixelic fluorescent object, and evaluate the impulse response of the whole system.
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%s
 
 \subsubsection{Complex structures}
 
@@ -167,21 +184,13 @@ He has been working on experiencing and developing diverse algorithms for nuclei
 As presented is the previous section, the datasets in the Megason Lab are extremely challenging:
 they are huge and present important drawbacks (resolution, noise) as they are provided for visual processing and not computer assisted processing.
 
-As these datasets are very big, and four dimensional, it is not possible to use Matlab for easy prototyping and experiencing : 
-most of the time, the very low resolution third dimension will considerably modify the results.
-There is also a time issue : the datasets must be treated in an acceptable amount of time,
-and that prevents us from using Matlab language that does not provide every optimized function that we need for 3D images visualization and processing.
-This forces us to program and prototype in {\C++}. The standard library used for image processing in the Megason Lab is ITK. Kishore's algorithm are all coded with this library.
-The data processing in ITK is represented by pipelines : a series of connected filters that perform image processing tasks.
-The Megason lab aslo develops a visualization program for microscopy data: {\gofigure}. This program uses ITK and VTK for processing and visualization of data. The long term goal being to include the algorithms to {\gofigure}, we also have to use those libraries.
-
-Kishore studied several pipelines for nuclei and membrane segmentation.
+Kishore studied several algorithms for nuclei and membrane segmentation.
 For nuclei segmentation, an approach based on detection of nuclei, and region growing with the level set theory was used last year.
 This year, a new approach based on nuclei detection and watershed algorithms is being used.
 The algorithm used are standard and contour based for the detection of nuclei.
 This leads to many errors in detection, due to the poor image quality. Right now, these errors are compensated after the segmentation step.
 
-For membrane segmentation, Kishore is proposing a very good denoising technique based on anisotropic diffusion and tensor voting.
+For membrane segmentation, Kishore is proposing a very good denoising technique based on anisotropic diffusion~\cite{kishoreMembrane}, and tensor voting (not published yet).
 The reconstruction of the membrane structure is effective, even in low quality images. A segmentation step has to be implemented on top of it.
 
 
@@ -225,7 +234,7 @@ The image processing pipeline is presented figure~\ref{fig:gradientflowFlowchart
 \begin{figure}[h]
 \begin{center}
 \leavevmode
-\includegraphics[height=0.75\textheight]{pictures/gradientflowFlowchart}
+\includegraphics[height=0.87\textheight]{pictures/gradientflowFlowchart}
 \end{center}
 \caption{Flowchart of the algorithm proposed in~\cite{li20073}}
 \label{fig:gradientflowFlowchart}
@@ -250,9 +259,9 @@ Illustration of 3D cell nuclei segmentation on a 2D slice, from~\cite{li20073}.
   \centering
   \captionsetup[subfloat]{labelformat=empty}
   \subfloat[][]{{\includegraphics[width=0.5\textwidth]{pictures/gradientflowFlowfielda}\label{fig:gradientflowFlowfielda}}}\\
-  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldb}\label{fig:gradientflowFlowfieldb}}}
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldb}\label{fig:gradientflowFlowfieldb}}} \hspace{5pt}
   \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldc}\label{fig:gradientflowFlowfieldc}}}\\
-  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldd}\label{fig:gradientflowFlowfieldd}}}
+  \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfieldd}\label{fig:gradientflowFlowfieldd}}} \hspace{5pt}
   \subfloat[][]{{\includegraphics[width=0.33\textwidth]{pictures/gradientflowFlowfielde}\label{fig:gradientflowFlowfielde}}}
 \caption{%
 The 3D view of gradient vector field and diffused gradient vector field with elastic deformation transformation of a slice cropped from a 3D cell nuclei image, from~\cite{li20073}.
@@ -284,21 +293,42 @@ The 3D view of gradient vector field and diffused gradient vector field with ela
 \begin{figure}[h]
 \begin{center}
 \leavevmode
-\includegraphics[height=0.75\textheight]{pictures/watershedFlowchart}
+\includegraphics[height=0.87\textheight]{pictures/watershedFlowchart}
 \end{center}
 \caption{Flowchart of the algorithm proposed in~\cite{umesh2001efficient}}
 \label{fig:watershedFlowchart}
 \end{figure}
+
 \begin{figure}[h]
   \centering
   \captionsetup[subfloat]{labelformat=empty}
-  \subfloat[Diagrammatic representation of detecting the small fragments of the object and finding its parent.]{\includegraphics[width=0.49\textwidth]{pictures/watershedMerge}\label{fig:watershedMerge}}
-\subfloat[Result of image enhancement steps shown over a single image slice: (a) original image slice, (b) result of window slicing, (c) result of size-filtering, (d) result of morphological opening and closing of a 3D image.]{\includegraphics[width=0.49\textwidth]{pictures/watershedPrefilt}\label{fig:watershedPrefilt}}
-\caption{illustrations from \cite{umesh2001efficient}}
+%
+  \subfloat[Diagrammatic representation of detecting the small fragments of the object and finding its parent.]%
+{\includegraphics[width=0.47\textwidth]{pictures/watershedMergea}\label{fig:watershedMergea}}%
+%
+\subfloat[After merging the fragments.]%
+{\includegraphics[width=0.47\textwidth]{pictures/watershedMergeb}\label{fig:watershedMergeb}}%
+%
+\caption{Illustrations from \cite{umesh2001efficient}: Merging of fragments :\\
+Fragment 1 and 2 shares the boundary with \( C_1 \) and \( C_2 \) but fragments 1 shares maximum boundary with \( C_2 \) while fragment 2 shares maximum boundary with  {\( C_1 \)}. So fragment 1 is merged to  {\( C_2 \)}, 2 is merged to {\( C_1 \)}, 3 to {\( C_2 \)}, 4 to {\( C_2 \)}, 5 and 6 to {\( C_3 \)}.}
   \label{fig:watershedIllustration}
 \end{figure}
-\clearpage
+\begin{figure}[h]
+  \centering
+  \captionsetup[subfloat]{labelformat=empty}
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/watershedPrefilta}\label{fig:watershedPrefilta}}\hspace{5pt}
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/watershedPrefiltb}\label{fig:watershedPrefiltb}}\\
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/watershedPrefiltc}\label{fig:watershedPrefiltc}}\hspace{5pt}
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/watershedPrefiltd}\label{fig:watershedPrefiltd}}
+\caption{Illustrations from \cite{umesh2001efficient}: Result of image enhancement steps shown over a single image slice:\\
+\subref{fig:watershedPrefilta}: original image slice;
+\subref{fig:watershedPrefiltb}: result of window slicing;
+\subref{fig:watershedPrefiltc}: result of size-filtering;
+\subref{fig:watershedPrefiltd}: result of morphological opening and closing of a 3D image.}
+  \label{fig:watershedIllustration}
+\end{figure}
 
+\clearpage
 
 \subsection*{Histological cell nuclei detection}
 \label{sect:farsight}
@@ -321,7 +351,7 @@ Yousef Al-Kofahi {\etal}~\cite{al2009improved}, presents a new method for nuclei
 \begin{figure}[h]
 \begin{center}
 \leavevmode
-\includegraphics[height=0.75\textheight]{pictures/farsightFlowchart}
+\includegraphics[height=0.87\textheight]{pictures/farsightFlowchart}
 \end{center}
 \caption{Flowchart of the algorithm proposed in~\cite{al2009improved}}
 \label{fig:farsightFlowchart}
@@ -329,14 +359,25 @@ Yousef Al-Kofahi {\etal}~\cite{al2009improved}, presents a new method for nuclei
 \begin{figure}[h]
   \centering
   \captionsetup[subfloat]{labelformat=empty}
-\subfloat[(A) Nuclear channel from spectral unmixing.]{\includegraphics[width=0.49\textwidth]{pictures/farsightInitial}\label{fig:farsightInitial}}
-\subfloat[(B) Foreground extraction results. Pixels marked yellow represent a large connected component.]{\includegraphics[width=0.49\textwidth]{pictures/farsightBinary}\label{farsightBinary}} \\
-\subfloat[(C) Surface plot of the multiscale LoG filtering results for a small region. (D) Initial segmentation based on the LoG. (E) Surface plot of the distance-map-constrained multiscale LoG. (F) Improved initial segmentation resulting from the distance-constrained LoG.]{\includegraphics[width=0.75\textwidth]{pictures/farsightMLOG}\label{fig:farsightMLOG}}
-\caption{illustrations from \cite{al2009improved}}
+\subfloat[][]{\includegraphics[width=0.49\textwidth]{pictures/farsightInitial}\label{fig:farsightInitial}}%
+\subfloat[][]{\includegraphics[width=0.49\textwidth]{pictures/farsightBinary}\label{fig:farsightBinary}} \\
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/farsightMLOGc}\label{fig:farsightMLOGc}}\hspace{5pt}
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/farsightMLOGd}\label{fig:farsightMLOGd}}\\
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/farsightMLOGe}\label{fig:farsightMLOGe}}\hspace{5pt}
+\subfloat[][]{\includegraphics[width=0.33\textwidth]{pictures/farsightMLOGf}\label{fig:farsightMLOGf}}
+%
+\caption{%
+illustrations from \cite{al2009improved}:\\
+\subref{fig:farsightInitial}: Foreground extraction results. Pixels marked yellow represent a large connected component;
+\subref{fig:farsightBinary}: Nuclear channel from spectral unmixing;
+\subref{fig:farsightMLOGc}: Surface plot of the multiscale LoG filtering results for a small region;
+\subref{fig:farsightMLOGd}:  Initial segmentation based on the LoG;
+\subref{fig:farsightMLOGe}: Surface plot of the distance-map-constrained multiscale LoG;
+\subref{fig:farsightMLOGf}:  Improved initial segmentation resulting from the distance-constrained LoG.
+}
   \label{fig:farsightIllustration}
 \end{figure}
 \clearpage
-
 
 %
 %%\subsection*{Loukas two observers}
@@ -386,7 +427,7 @@ The existing method in the Megason Lab, for nuclei detection and segmentation, i
 \begin{figure}[h]
 \begin{center}
 \leavevmode
-\includegraphics[height=0.75\textheight]{pictures/kishoreFlowchart}
+\includegraphics[height=0.87\textheight]{pictures/kishoreFlowchart}
 \end{center}
 \caption{Flowchart of the algorithm used in the Megason Lab}
 \label{fig:kishoreFlowchart}

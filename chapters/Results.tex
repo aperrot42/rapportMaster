@@ -126,7 +126,7 @@ This evaluation let us compare the three algorithms on a very hard dataset.
 \label{tab:realEval}
 \end{figure}
 
-We can see that the Scale constrained Laplacian of Gaussian outperforms both existing and presented algorithms in terms of detected cells.
+We can see that the scale constrained Laplacian of Gaussian outperforms both existing and presented algorithms in terms of detected cells.
 It is also important to notice that it make more outside of nuclei and over-detections than the proposed algorithm.
 The existing algorithm performs worse than the two others.
 
@@ -149,8 +149,9 @@ We computed the execution time of the three algorithms, on the real dataset (see
 \end{figure}
 The fastest algorithm is the one currently used in the Megason lab, with an execution time of 16 minutes.
 Then the Laplacian of Gaussian and the Proposal have approximatively the same processing time.
-We decided to focus on algorithms rather than implementation, so the given times is the sum of the time spent by each computer,
-thus, we don't advantage too much the multi-threaded implementations.
+We decided to focus on algorithms rather than implementation,
+so the given times are the sum of the time spent by each processor,
+thus, we don't advantage too much the multi-threaded implementations. 
 
 
 

@@ -151,3 +151,50 @@ This annex presents the raw results from the evaluation both on synthetic and re
 \end{figure}
 
 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Scale constrained\\%
+Multiscale Laplacien of Gaussian}
+\label{annex:MLOG}
+This annex describes briefly the scale constrained Multiscale Laplacian of Gaussian, used in~\cite{al2009improved}, for nuclei detection.
+
+\section{Multiscale Laplacian of Gaussian}
+The Laplacian of Gaussian (LoG) filter is used to detect blobs of a certain size, in an image. The LoG is a contour detector based on the second derivative, thus, it is very sensitive to noise. The Gaussian filtering operation reduces the sensitivity to noise.
+The Multsicale LoG (MLoG), makes this operation more robust by allowing the detection of blobs of various sizes.\\
+
+With \(LoG_{normalized}(p,\sigma)\) the output of the LoG filter, of scale {\({\sigma}\)}  at the pixel {\({p : (p_x, p_y, p_z)}\)};
+ \({R_N(p)}\) the output of the MLoG at the pixel {\({p}\)}.
+The output of such filter is given by the following equation in two dimensions :
+\begin{equation}
+\label{eqn:multiscaleLoG}
+R_N(p) = \underset{\sigma \in [\sigma _{min},\sigma _{max} ] }{argmax} \Big\lbrace LoG_{normalized}(p,\sigma) \ast I(p) \Big\rbrace 
+\end{equation}
+For more information on multiscale analysis and Laplacian of Gaussian, the reader is referred to \cite{lindeberg1998feature}.
+
+
+\section{Scale constrained MLoG}
+
+It happens, in the case of very close blobs, that the MLoG focuses on a big scale and outputs a strong signal
+for only one blob resulting from the fusion several close blobs.
+The provided implementation tries to counter this behaviour by adding a constraint on the scale of the Gaussian at each pixel.
+The scale constraint is computed from a "foreground mask" which should include the blobs to be detected. A distance map $ D_{I} $ is then computed from this foreground mask (see \ref{subsec:EuclDistMapDef}). This distance map is used to constrain the scale at each pixel.\\
+
+The new algorithm uses the general equation of MLoG (Eqn(~\ref{eqn:multiscaleLoG})), replacing $\sigma _{min}$ by $\sigma _{contrained}$ with
+\begin{equation}
+\label{eqn:ScaleConstraint}
+ \sigma _{contrained}(p)= max \Big\lbrace {\sigma _{min},min  \left\lbrace {\sigma _{max} , D_{I}(p)} \right\rbrace} \Big\rbrace  
+\end{equation}
+
+We finally have the following equation for the scale constrained MLoG:
+\begin{equation}
+\label{eqn:ScaleConstraintMLoG}
+R_N(p) = \underset{\sigma \in [\sigma _{min},\sigma _{contrained}(p) ] }{argmax} \Big\lbrace LoG_{normalized}(p,\sigma) \ast I(p) \Big\rbrace 
+\end{equation}
+
+The application of this method is illustrated figure~\ref{fig:fig:farsightMLOGe}.
+For more information on the basis of the scientific method the reader is referred to~\cite{al2009improved}.

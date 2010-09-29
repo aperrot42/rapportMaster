@@ -270,6 +270,7 @@ The 3D view of gradient vector field and diffused gradient vector field with ela
 \subref{fig:gradientflowFlowfieldc}: The diffused gradient flow field with elastic deformation transformation;
 \subref{fig:gradientflowFlowfieldd}: Zoomed view of \subref{fig:gradientflowFlowfieldb};
 \subref{fig:gradientflowFlowfielde}: Zoomed view of \subref{fig:gradientflowFlowfieldc}.}
+\label{fig:gradientflowFlowfield}
 \end{figure}
 \clearpage
 
@@ -284,7 +285,7 @@ The 3D view of gradient vector field and diffused gradient vector field with ela
   This filters the texture of the cells, and removes holes.
   An intensity correction is then applied along the z axis. The figure~\ref{fig:watershedPrefilt} illustrates the results of this pre-processing.
   After a binarization of the preprocessed image, a distance map is computed and thresholded to find the cell markers, to initiate the watershed algorithm.
-  Once the watershed algorithm has converged, a region merging process groups over-segmented cells. The region merge used in this paper is described by figure~\ref{watershedMerge}.
+  Once the watershed algorithm has converged, a region merging process groups over-segmented cells. The region merge used in this paper is described by figure~\ref{fig:watershedMerge}.
   \item[Evaluation] is performed on 15 3D datasets. The mean amount of nuclei in the datasets is 22. The information provided by the evaluation is the number of detected cells compared to the number of real cells present. No information is given on the type of error. The algorithm is compared to \cite{malpica1997applying}, and shows better performance according to the evaluation criterion.
   \item[Results] the algorithm provides very good results in the paper with 2\% of error instead of 9\% for \cite{malpica1997applying}.
   \item[Comments]: this article is well presented with a description of all the steps of the processing pipeline.
@@ -311,7 +312,7 @@ The 3D view of gradient vector field and diffused gradient vector field with ela
 %
 \caption{Illustrations from \cite{umesh2001efficient}: Merging of fragments :\\
 Fragment 1 and 2 shares the boundary with \( C_1 \) and \( C_2 \) but fragments 1 shares maximum boundary with \( C_2 \) while fragment 2 shares maximum boundary with  {\( C_1 \)}. So fragment 1 is merged to  {\( C_2 \)}, 2 is merged to {\( C_1 \)}, 3 to {\( C_2 \)}, 4 to {\( C_2 \)}, 5 and 6 to {\( C_3 \)}.}
-  \label{fig:watershedIllustration}
+  \label{fig:watershedMerge}
 \end{figure}
 \begin{figure}[h]
   \centering
@@ -325,7 +326,7 @@ Fragment 1 and 2 shares the boundary with \( C_1 \) and \( C_2 \) but fragments 
 \subref{fig:watershedPrefiltb}: result of window slicing;
 \subref{fig:watershedPrefiltc}: result of size-filtering;
 \subref{fig:watershedPrefiltd}: result of morphological opening and closing of a 3D image.}
-  \label{fig:watershedIllustration}
+  \label{fig:watershedPrefilt}
 \end{figure}
 
 \clearpage
@@ -336,10 +337,10 @@ Yousef Al-Kofahi {\etal}~\cite{al2009improved}, presents a new method for nuclei
   \begin{description}
   \item[Data] are 2D histological images (see figure~\ref{fig:farsightInitial}).
   \item[Method] is described figure~\ref{fig:farsightFlowchart}.
-  A first step consists in finding the foreground of the image with a graph cut based binarization (illustrated figure~\ref{farsightBinary}).
-  A distance map is then computed on this binary image, and is used to constrain the scales of a multiscale Laplacian of Gaussian (see~\ref{sect:MLOG}).
-  The original image is processed by the scale-constrained multi-scale Laplacien of Gaussian.
-  A local maxima detection is performed on the resulting scalar field (as shown figure~\ref{fig:farsightMLOG}).
+  A first step consists in finding the foreground of the image with a graph cut based binarization (illustrated figure~\ref{fig:farsightBinary}).
+  A distance map is then computed on this binary image, and is used to constrain the scales of a multiscale Laplacian of Gaussian (MLoG).
+  The original image is processed by the scale-constrained multi-scale Laplacien of Gaussian (see annex~\ref{annex:MLOG}, for a description of the scale constrained MLoG).
+  A local maxima detection is performed on the resulting scalar field (as shown figure~\ref{fig:farsightMLOGe}).
   Those local maximas correspond to the position of the cell.
   A watershed algorithm is then initiated from these points, and finally refined by manual editing and "alpha-refinement".
   \item[Evaluation] is done on 25 images containing an average of 298 cells per image. The results present the number of over and under segmented cell nuclei and separates encroachment errors.
@@ -375,7 +376,7 @@ illustrations from \cite{al2009improved}:\\
 \subref{fig:farsightMLOGe}: Surface plot of the distance-map-constrained multiscale LoG;
 \subref{fig:farsightMLOGf}:  Improved initial segmentation resulting from the distance-constrained LoG.
 }
-  \label{fig:farsightIllustration}
+  \label{fig:farsightMLOG}
 \end{figure}
 \clearpage
 
@@ -414,7 +415,7 @@ The existing method in the Megason Lab, for nuclei detection and segmentation, i
   \item[Method] is described figure~\ref{fig:kishoreFlowchart},
   A pre processing stage consists in denoising the raw image, with an anisotropic diffusion filter.
   Then, the algorithm consists in a combination of methods : 
-  hough transform, image masking and distance map, and the redial voting technique described in \cite{chang2007segmentation}, applied to the denoised image.
+  hough transform, image masking and distance map, and the radial voting technique described in \cite{chang2007segmentation}, applied to the denoised image.
   Once the three filters processed the nuclei image, their output scalar fields are summed.
   A local maxima extraction is performed on this resulting field.
   This extraction filters the close local maximas, to reduce the noise impact, by selecting the highest local maxima, and ignoring the other local maximas in a certain radius.
